@@ -1,9 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-import { Web3Storage } from 'web3.storage';
-
-const client = new Web3Storage({ token: process.env.NEXT_PUBLIC_WEB3_STORAGE_TOKEN || '' });
 
 export default function AssetUpload() {
   const [file, setFile] = useState<File | null>(null);
@@ -14,8 +11,10 @@ export default function AssetUpload() {
     if (!file) return;
     setUploading(true);
     try {
-      const cid = await client.put([file]);
-      setIpfsHash(cid);
+      // Mock IPFS upload for demo
+      await new Promise(resolve => setTimeout(resolve, 2000)); // Simulate upload time
+      const mockCID = 'bafybeigdyrzt5sfp7udm7hu76uh7y26nf3efuylqabf3oclgtqy55fbzdi';
+      setIpfsHash(mockCID);
     } catch (error) {
       console.error(error);
     }
