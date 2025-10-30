@@ -5,7 +5,8 @@ import { useAccount, useConnect, useDisconnect } from 'wagmi';
 import { metaMask, walletConnect } from 'wagmi/connectors';
 import toast, { Toaster } from 'react-hot-toast';
 import { motion } from 'framer-motion';
-import { Shield, Upload, Coins, Vault, BarChart3 } from 'lucide-react';
+import { Shield, Upload, Coins, Vault, BarChart3, HelpCircle } from 'lucide-react';
+import { Tooltip } from 'react-tooltip';
 import dynamic from 'next/dynamic';
 
 // Dynamically import components that use wagmi to avoid SSR issues
