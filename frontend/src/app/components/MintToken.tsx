@@ -6,7 +6,7 @@ import toast from 'react-hot-toast';
 
 // Mock contract ABI and address
 const assetTokenizerAddress = '0x...'; // Replace with deployed address
-const assetTokenizerAbi = [
+const assetTokenizerAbi: readonly any[] = [
   // Add ABI here
 ];
 

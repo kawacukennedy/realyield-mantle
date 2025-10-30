@@ -7,7 +7,7 @@ import Modal from './Modal';
 
 // Mock vault contract
 const vaultAddress = '0x...';
-const vaultAbi = [];
+const vaultAbi: readonly any[] = [];
 
 export default function VaultActions() {
   const [amount, setAmount] = useState('');
