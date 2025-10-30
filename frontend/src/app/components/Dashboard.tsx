@@ -16,11 +16,18 @@ interface BalanceData {
   balance: number;
 }
 
+interface PieData {
+  name: string;
+  value: number;
+  color: string;
+}
+
 export default function Dashboard() {
   const { address } = useAccount();
   const [loading, setLoading] = useState(true);
   const [yieldData, setYieldData] = useState<YieldData[]>([]);
   const [balanceData, setBalanceData] = useState<BalanceData[]>([]);
+  const [pieData, setPieData] = useState<PieData[]>([]);
   const [pieData, setPieData] = useState([]);
 
   useEffect(() => {
