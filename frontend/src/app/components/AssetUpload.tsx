@@ -1,7 +1,9 @@
 'use client';
 
 import { useState } from 'react';
-import axios from 'axios';
+import { Web3Storage } from 'web3.storage';
+
+const client = new Web3Storage({ token: process.env.NEXT_PUBLIC_WEB3_STORAGE_TOKEN || '' });
 
 export default function AssetUpload() {
   const [file, setFile] = useState<File | null>(null);
@@ -11,13 +13,9 @@ export default function AssetUpload() {
   const handleUpload = async () => {
     if (!file) return;
     setUploading(true);
-    // Mock IPFS upload
-    const formData = new FormData();
-    formData.append('file', file);
     try {
-      // In real, use IPFS API
-      const response = await axios.post('http://localhost:3001/data/store', { data: 'mock-data' });
-      setIpfsHash('mock-ipfs-hash');
+      const cid = await client.put([file]);
+      setIpfsHash(cid);
     } catch (error) {
       console.error(error);
     }
@@ -34,12 +32,12 @@ export default function AssetUpload() {
       />
       <button
         onClick={handleUpload}
-        disabled={uploading}
-        className="w-full bg-blue-500 text-white py-2 px-4 rounded"
+        disabled={uploading || !file}
+        className="w-full bg-blue-500 text-white py-2 px-4 rounded disabled:opacity-50"
       >
-        {uploading ? 'Uploading...' : 'Upload'}
+        {uploading ? 'Uploading...' : 'Upload to IPFS'}
       </button>
-      {ipfsHash && <p>IPFS Hash: {ipfsHash}</p>}
+      {ipfsHash && <p>IPFS CID: {ipfsHash}</p>}
     </div>
   );
 }

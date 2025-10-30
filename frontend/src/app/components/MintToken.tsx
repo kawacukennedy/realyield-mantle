@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useWriteContract } from 'wagmi';
 import { parseEther } from 'viem';
+import toast from 'react-hot-toast';
 
 // Mock contract ABI and address
 const assetTokenizerAddress = '0x...'; // Replace with deployed address
@@ -13,7 +14,7 @@ const assetTokenizerAbi = [
 export default function MintToken() {
   const [metadataURI, setMetadataURI] = useState('');
   const [amount, setAmount] = useState(1);
-  const { writeContract, isPending } = useWriteContract();
+  const { writeContract, isPending, isSuccess, isError } = useWriteContract();
 
   const handleMint = () => {
     writeContract({
@@ -23,6 +24,14 @@ export default function MintToken() {
       args: ['0x...', amount, metadataURI, '0x...', '0x...'], // Mock args
     });
   };
+
+  if (isSuccess) {
+    toast.success('Token minted successfully!');
+  }
+
+  if (isError) {
+    toast.error('Minting failed!');
+  }
 
   return (
     <div>
@@ -43,8 +52,8 @@ export default function MintToken() {
       />
       <button
         onClick={handleMint}
-        disabled={isPending}
-        className="w-full bg-purple-500 text-white py-2 px-4 rounded"
+        disabled={isPending || !metadataURI}
+        className="w-full bg-purple-500 text-white py-2 px-4 rounded disabled:opacity-50"
       >
         {isPending ? 'Minting...' : 'Mint Token'}
       </button>

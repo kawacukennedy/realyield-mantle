@@ -1,7 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { useWriteContract } from 'wagmi';
+import { useWriteContract, useEstimateGas } from 'wagmi';
+import { parseEther } from 'viem';
 
 // Mock vault contract
 const vaultAddress = '0x...';
@@ -10,6 +11,11 @@ const vaultAbi = [];
 export default function VaultActions() {
   const [amount, setAmount] = useState('');
   const { writeContract, isPending } = useWriteContract();
+
+  const { data: gasEstimate } = useEstimateGas({
+    to: vaultAddress,
+    data: '0x', // Mock
+  });
 
   const handleDeposit = () => {
     writeContract({
@@ -39,19 +45,22 @@ export default function VaultActions() {
         onChange={(e) => setAmount(e.target.value)}
         className="w-full p-2 border rounded mb-4"
       />
+      {gasEstimate && (
+        <p className="text-sm text-gray-600 mb-4">Estimated Gas: {gasEstimate.toString()}</p>
+      )}
       <button
         onClick={handleDeposit}
-        disabled={isPending}
-        className="w-full bg-green-500 text-white py-2 px-4 rounded mb-2"
+        disabled={isPending || !amount}
+        className="w-full bg-green-500 text-white py-2 px-4 rounded mb-2 disabled:opacity-50"
       >
-        Deposit
+        {isPending ? 'Depositing...' : 'Deposit'}
       </button>
       <button
         onClick={handleWithdraw}
-        disabled={isPending}
-        className="w-full bg-red-500 text-white py-2 px-4 rounded"
+        disabled={isPending || !amount}
+        className="w-full bg-red-500 text-white py-2 px-4 rounded disabled:opacity-50"
       >
-        Withdraw
+        {isPending ? 'Withdrawing...' : 'Withdraw'}
       </button>
     </div>
   );

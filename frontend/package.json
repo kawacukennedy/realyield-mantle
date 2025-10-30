@@ -18,7 +18,10 @@
     "@wagmi/connectors": "^5.0.0",
     "ethers": "^6.8.0",
     "axios": "^1.6.2",
-    "react-hot-toast": "^2.4.1"
+    "react-hot-toast": "^2.4.1",
+    "recharts": "^2.8.0",
+    "lucide-react": "^0.294.0",
+    "web3.storage": "^4.5.5"
   },
   "devDependencies": {
     "typescript": "^5",

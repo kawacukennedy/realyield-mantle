@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useAccount, useConnect, useDisconnect } from 'wagmi';
 import { metaMask, walletConnect } from 'wagmi/connectors';
 import toast, { Toaster } from 'react-hot-toast';
+import { Shield, Upload, Coins, Vault, BarChart3 } from 'lucide-react';
 import KYCSection from './components/KYCSection';
 import AssetUpload from './components/AssetUpload';
 import MintToken from './components/MintToken';
@@ -46,9 +47,9 @@ export default function Home() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-100 p-8">
-      <h1 className="text-4xl font-bold text-center mb-8">RealYield</h1>
-      <div className="max-w-4xl mx-auto bg-white p-6 rounded-lg shadow-md">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-8">
+      <h1 className="text-4xl font-bold text-center mb-8 text-gray-800">RealYield</h1>
+      <div className="max-w-6xl mx-auto bg-white p-6 rounded-lg shadow-lg">
         <div className="flex justify-between items-center mb-6">
           <p>Connected: {address}</p>
           <button
@@ -58,35 +59,40 @@ export default function Home() {
             Disconnect
           </button>
         </div>
-        <div className="flex space-x-4 mb-6">
+        <div className="flex space-x-4 mb-6 overflow-x-auto">
           <button
             onClick={() => setActiveTab('kyc')}
-            className={`py-2 px-4 rounded ${activeTab === 'kyc' ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}
+            className={`flex items-center py-2 px-4 rounded ${activeTab === 'kyc' ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}
           >
+            <Shield className="mr-2" size={16} />
             KYC
           </button>
           <button
             onClick={() => setActiveTab('upload')}
-            className={`py-2 px-4 rounded ${activeTab === 'upload' ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}
+            className={`flex items-center py-2 px-4 rounded ${activeTab === 'upload' ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}
           >
+            <Upload className="mr-2" size={16} />
             Upload Asset
           </button>
           <button
             onClick={() => setActiveTab('mint')}
-            className={`py-2 px-4 rounded ${activeTab === 'mint' ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}
+            className={`flex items-center py-2 px-4 rounded ${activeTab === 'mint' ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}
           >
+            <Coins className="mr-2" size={16} />
             Mint Token
           </button>
           <button
             onClick={() => setActiveTab('vault')}
-            className={`py-2 px-4 rounded ${activeTab === 'vault' ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}
+            className={`flex items-center py-2 px-4 rounded ${activeTab === 'vault' ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}
           >
+            <Vault className="mr-2" size={16} />
             Vault Actions
           </button>
           <button
             onClick={() => setActiveTab('dashboard')}
-            className={`py-2 px-4 rounded ${activeTab === 'dashboard' ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}
+            className={`flex items-center py-2 px-4 rounded ${activeTab === 'dashboard' ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}
           >
+            <BarChart3 className="mr-2" size={16} />
             Dashboard
           </button>
         </div>
