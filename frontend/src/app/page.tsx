@@ -5,13 +5,15 @@ import { useAccount, useConnect, useDisconnect } from 'wagmi';
 import { metaMask, walletConnect } from 'wagmi/connectors';
 import toast, { Toaster } from 'react-hot-toast';
 import { motion } from 'framer-motion';
-import { Shield, Upload, Coins, Vault, BarChart3 } from 'lucide-react';
+import { Shield, Upload, Coins, Vault, BarChart3, HelpCircle } from 'lucide-react';
+import { Tooltip } from 'react-tooltip';
 import KYCSection from './components/KYCSection';
 import AssetUpload from './components/AssetUpload';
 import MintToken from './components/MintToken';
 import VaultActions from './components/VaultActions';
 import Dashboard from './components/Dashboard';
 import ThemeToggle from './components/ThemeToggle';
+import Modal from './components/Modal';
 
 export default function Home() {
   const { address, isConnected } = useAccount();
@@ -19,6 +21,12 @@ export default function Home() {
   const { disconnect } = useDisconnect();
   const [kycStatus, setKycStatus] = useState(false);
   const [activeTab, setActiveTab] = useState('kyc');
+  const [showTutorial, setShowTutorial] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return !localStorage.getItem('tutorialShown');
+    }
+    return false;
+  });
 
   const handleConnect = (connector: any) => {
     connect({ connector });
@@ -51,7 +59,15 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 p-8">
       <div className="flex justify-between items-center mb-8">
-        <h1 className="text-4xl font-bold text-gray-800 dark:text-white">RealYield</h1>
+        <div className="flex items-center">
+          <h1 className="text-4xl font-bold text-gray-800 dark:text-white mr-4">RealYield</h1>
+          <HelpCircle
+            data-tooltip-id="help-tooltip"
+            data-tooltip-content="RealYield is a platform for tokenizing real-world assets into yield-bearing vaults on Mantle blockchain."
+            className="cursor-pointer"
+            size={24}
+          />
+        </div>
         <ThemeToggle />
       </div>
       <motion.div
@@ -113,6 +129,19 @@ export default function Home() {
         {activeTab === 'dashboard' && <Dashboard />}
       </motion.div>
       <Toaster />
+      <Tooltip id="help-tooltip" />
+      <Modal isOpen={showTutorial} onClose={() => { setShowTutorial(false); localStorage.setItem('tutorialShown', 'true'); }} title="Welcome to RealYield">
+        <div className="text-center">
+          <p className="mb-4">Welcome! RealYield helps you tokenize real-world assets into yield-bearing vaults.</p>
+          <p className="mb-4">Start by connecting your wallet and completing KYC.</p>
+          <button
+            onClick={() => { setShowTutorial(false); localStorage.setItem('tutorialShown', 'true'); }}
+            className="px-4 py-2 bg-blue-500 text-white rounded"
+          >
+            Get Started
+          </button>
+        </div>
+      </Modal>
     </div>
   );
 }

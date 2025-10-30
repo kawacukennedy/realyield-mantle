@@ -4,22 +4,31 @@ import { useState, useEffect } from 'react';
 import { useAccount } from 'wagmi';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar } from 'recharts';
 import TransactionHistory from './TransactionHistory';
+import Skeleton from './Skeleton';
 
 export default function Dashboard() {
   const { address } = useAccount();
-  const [yieldData, setYieldData] = useState([
-    { month: 'Jan', yield: 100 },
-    { month: 'Feb', yield: 120 },
-    { month: 'Mar', yield: 150 },
-    { month: 'Apr', yield: 180 },
-  ]);
-  const [balanceData, setBalanceData] = useState([
-    { asset: 'Asset1', balance: 500 },
-    { asset: 'Asset2', balance: 300 },
-    { asset: 'Asset3', balance: 200 },
-  ]);
+  const [loading, setLoading] = useState(true);
+  const [yieldData, setYieldData] = useState([]);
+  const [balanceData, setBalanceData] = useState([]);
 
   useEffect(() => {
+    // Simulate loading
+    setTimeout(() => {
+      setYieldData([
+        { month: 'Jan', yield: 100 },
+        { month: 'Feb', yield: 120 },
+        { month: 'Mar', yield: 150 },
+        { month: 'Apr', yield: 180 },
+      ]);
+      setBalanceData([
+        { asset: 'Asset1', balance: 500 },
+        { asset: 'Asset2', balance: 300 },
+        { asset: 'Asset3', balance: 200 },
+      ]);
+      setLoading(false);
+    }, 2000);
+
     const interval = setInterval(() => {
       // Mock real-time update
       setYieldData(prev => prev.map(item => ({ ...item, yield: item.yield + Math.random() * 10 })));
@@ -29,13 +38,48 @@ export default function Dashboard() {
     return () => clearInterval(interval);
   }, []);
 
+  if (loading) {
+    return (
+      <div>
+        <h2 className="text-2xl mb-4">Dashboard</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <Skeleton height="60px" />
+          <Skeleton height="60px" />
+          <Skeleton height="60px" />
+          <Skeleton height="60px" />
+        </div>
+        <div className="mt-8">
+          <Skeleton height="300px" />
+        </div>
+      </div>
+    );
+  }
+
+  const exportData = () => {
+    const dataStr = JSON.stringify({ yieldData, balanceData }, null, 2);
+    const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+    const exportFileDefaultName = 'realyield-data.json';
+    const linkElement = document.createElement('a');
+    linkElement.setAttribute('href', dataUri);
+    linkElement.setAttribute('download', exportFileDefaultName);
+    linkElement.click();
+  };
+
   return (
     <div>
-      <h2 className="text-2xl mb-4">Dashboard</h2>
+      <div className="flex justify-between items-center mb-4">
+        <h2 className="text-2xl">Dashboard</h2>
+        <button
+          onClick={exportData}
+          className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
+        >
+          Export Data
+        </button>
+      </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>
           <h3 className="text-lg mb-2">Wallet Address</h3>
-          <p className="text-sm text-gray-600">{address}</p>
+          <p className="text-sm text-gray-600 dark:text-gray-400">{address}</p>
         </div>
         <div>
           <h3 className="text-lg mb-2">Vault Balance</h3>

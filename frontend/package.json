@@ -26,7 +26,8 @@
     "web3.storage": "^4.5.5",
     "next-themes": "^0.2.1",
     "react-hook-form": "^7.48.2",
-    "framer-motion": "^10.16.16"
+    "framer-motion": "^10.16.16",
+    "react-tooltip": "^5.25.1"
   },
   "devDependencies": {
     "typescript": "^5",

@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { WagmiProvider } from './WagmiProvider';
 import { ThemeProvider } from 'next-themes';
+import ErrorBoundary from './components/ErrorBoundary';
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -17,6 +18,7 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "RealYield",
   description: "Compliant On-Chain Yield Vaults for Real-World Assets on Mantle",
+  manifest: "/manifest.json",
 };
 
 export default function RootLayout({
@@ -30,9 +32,11 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <ThemeProvider attribute="class">
-          <WagmiProvider>
-            {children}
-          </WagmiProvider>
+          <ErrorBoundary>
+            <WagmiProvider>
+              {children}
+            </WagmiProvider>
+          </ErrorBoundary>
         </ThemeProvider>
       </body>
     </html>
