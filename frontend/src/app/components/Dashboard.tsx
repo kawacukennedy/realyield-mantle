@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useAccount } from 'wagmi';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar } from 'recharts';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, PieChart, Pie, Cell } from 'recharts';
 import TransactionHistory from './TransactionHistory';
 import Skeleton from './Skeleton';
 
@@ -11,6 +11,7 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true);
   const [yieldData, setYieldData] = useState([]);
   const [balanceData, setBalanceData] = useState([]);
+  const [pieData, setPieData] = useState([]);
 
   useEffect(() => {
     // Simulate loading
@@ -25,6 +26,12 @@ export default function Dashboard() {
         { asset: 'Asset1', balance: 500 },
         { asset: 'Asset2', balance: 300 },
         { asset: 'Asset3', balance: 200 },
+      ]);
+      setPieData([
+        { name: 'Real Estate', value: 400, color: '#0088FE' },
+        { name: 'Bonds', value: 300, color: '#00C49F' },
+        { name: 'Invoices', value: 200, color: '#FFBB28' },
+        { name: 'Other', value: 100, color: '#FF8042' },
       ]);
       setLoading(false);
     }, 2000);
@@ -116,6 +123,28 @@ export default function Dashboard() {
             <Tooltip />
             <Bar dataKey="balance" fill="#82ca9d" />
           </BarChart>
+        </ResponsiveContainer>
+      </div>
+      <div className="mt-8">
+        <h3 className="text-lg mb-4">Asset Distribution</h3>
+        <ResponsiveContainer width="100%" height={300}>
+          <PieChart>
+            <Pie
+              data={pieData}
+              cx="50%"
+              cy="50%"
+              labelLine={false}
+              label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+              outerRadius={80}
+              fill="#8884d8"
+              dataKey="value"
+            >
+              {pieData.map((entry, index) => (
+                <Cell key={`cell-${index}`} fill={entry.color} />
+              ))}
+            </Pie>
+            <Tooltip />
+          </PieChart>
         </ResponsiveContainer>
       </div>
       <div className="mt-8">

@@ -14,6 +14,8 @@ import VaultActions from './components/VaultActions';
 import Dashboard from './components/Dashboard';
 import ThemeToggle from './components/ThemeToggle';
 import Modal from './components/Modal';
+import Footer from './components/Footer';
+import Referrals from './components/Referrals';
 
 export default function Home() {
   const { address, isConnected } = useAccount();
@@ -121,12 +123,19 @@ export default function Home() {
             <BarChart3 className="mr-2" size={16} />
             Dashboard
           </button>
+          <button
+            onClick={() => setActiveTab('referrals')}
+            className={`flex items-center py-2 px-4 rounded ${activeTab === 'referrals' ? 'bg-blue-500 text-white' : 'bg-gray-200 dark:bg-gray-700 dark:text-white'}`}
+          >
+            Referrals
+          </button>
         </div>
         {activeTab === 'kyc' && <KYCSection kycStatus={kycStatus} setKycStatus={setKycStatus} />}
         {activeTab === 'upload' && <AssetUpload />}
         {activeTab === 'mint' && <MintToken />}
         {activeTab === 'vault' && <VaultActions />}
         {activeTab === 'dashboard' && <Dashboard />}
+        {activeTab === 'referrals' && <Referrals />}
       </motion.div>
       <Toaster />
       <Tooltip id="help-tooltip" />
@@ -142,6 +151,7 @@ export default function Home() {
           </button>
         </div>
       </Modal>
+      <Footer />
     </div>
   );
 }
