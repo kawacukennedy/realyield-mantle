@@ -1,24 +1,33 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import { useAccount } from 'wagmi';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar } from 'recharts';
 import TransactionHistory from './TransactionHistory';
 
-const yieldData = [
-  { month: 'Jan', yield: 100 },
-  { month: 'Feb', yield: 120 },
-  { month: 'Mar', yield: 150 },
-  { month: 'Apr', yield: 180 },
-];
-
-const balanceData = [
-  { asset: 'Asset1', balance: 500 },
-  { asset: 'Asset2', balance: 300 },
-  { asset: 'Asset3', balance: 200 },
-];
-
 export default function Dashboard() {
   const { address } = useAccount();
+  const [yieldData, setYieldData] = useState([
+    { month: 'Jan', yield: 100 },
+    { month: 'Feb', yield: 120 },
+    { month: 'Mar', yield: 150 },
+    { month: 'Apr', yield: 180 },
+  ]);
+  const [balanceData, setBalanceData] = useState([
+    { asset: 'Asset1', balance: 500 },
+    { asset: 'Asset2', balance: 300 },
+    { asset: 'Asset3', balance: 200 },
+  ]);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      // Mock real-time update
+      setYieldData(prev => prev.map(item => ({ ...item, yield: item.yield + Math.random() * 10 })));
+      setBalanceData(prev => prev.map(item => ({ ...item, balance: item.balance + Math.random() * 50 })));
+    }, 5000); // Update every 5 seconds
+
+    return () => clearInterval(interval);
+  }, []);
 
   return (
     <div>

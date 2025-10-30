@@ -21,7 +21,10 @@
     "react-hot-toast": "^2.4.1",
     "recharts": "^2.8.0",
     "lucide-react": "^0.294.0",
-    "web3.storage": "^4.5.5"
+    "web3.storage": "^4.5.5",
+    "next-themes": "^0.2.1",
+    "react-hook-form": "^7.48.2",
+    "framer-motion": "^10.16.16"
   },
   "devDependencies": {
     "typescript": "^5",

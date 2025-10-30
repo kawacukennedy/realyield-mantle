@@ -4,12 +4,14 @@ import { useState } from 'react';
 import { useAccount, useConnect, useDisconnect } from 'wagmi';
 import { metaMask, walletConnect } from 'wagmi/connectors';
 import toast, { Toaster } from 'react-hot-toast';
+import { motion } from 'framer-motion';
 import { Shield, Upload, Coins, Vault, BarChart3 } from 'lucide-react';
 import KYCSection from './components/KYCSection';
 import AssetUpload from './components/AssetUpload';
 import MintToken from './components/MintToken';
 import VaultActions from './components/VaultActions';
 import Dashboard from './components/Dashboard';
+import ThemeToggle from './components/ThemeToggle';
 
 export default function Home() {
   const { address, isConnected } = useAccount();
@@ -47,9 +49,17 @@ export default function Home() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-8">
-      <h1 className="text-4xl font-bold text-center mb-8 text-gray-800">RealYield</h1>
-      <div className="max-w-6xl mx-auto bg-white p-6 rounded-lg shadow-lg">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 p-8">
+      <div className="flex justify-between items-center mb-8">
+        <h1 className="text-4xl font-bold text-gray-800 dark:text-white">RealYield</h1>
+        <ThemeToggle />
+      </div>
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        className="max-w-6xl mx-auto bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg"
+      >
         <div className="flex justify-between items-center mb-6">
           <p>Connected: {address}</p>
           <button
@@ -62,35 +72,35 @@ export default function Home() {
         <div className="flex space-x-4 mb-6 overflow-x-auto">
           <button
             onClick={() => setActiveTab('kyc')}
-            className={`flex items-center py-2 px-4 rounded ${activeTab === 'kyc' ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}
+            className={`flex items-center py-2 px-4 rounded ${activeTab === 'kyc' ? 'bg-blue-500 text-white' : 'bg-gray-200 dark:bg-gray-700 dark:text-white'}`}
           >
             <Shield className="mr-2" size={16} />
             KYC
           </button>
           <button
             onClick={() => setActiveTab('upload')}
-            className={`flex items-center py-2 px-4 rounded ${activeTab === 'upload' ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}
+            className={`flex items-center py-2 px-4 rounded ${activeTab === 'upload' ? 'bg-blue-500 text-white' : 'bg-gray-200 dark:bg-gray-700 dark:text-white'}`}
           >
             <Upload className="mr-2" size={16} />
             Upload Asset
           </button>
           <button
             onClick={() => setActiveTab('mint')}
-            className={`flex items-center py-2 px-4 rounded ${activeTab === 'mint' ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}
+            className={`flex items-center py-2 px-4 rounded ${activeTab === 'mint' ? 'bg-blue-500 text-white' : 'bg-gray-200 dark:bg-gray-700 dark:text-white'}`}
           >
             <Coins className="mr-2" size={16} />
             Mint Token
           </button>
           <button
             onClick={() => setActiveTab('vault')}
-            className={`flex items-center py-2 px-4 rounded ${activeTab === 'vault' ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}
+            className={`flex items-center py-2 px-4 rounded ${activeTab === 'vault' ? 'bg-blue-500 text-white' : 'bg-gray-200 dark:bg-gray-700 dark:text-white'}`}
           >
             <Vault className="mr-2" size={16} />
             Vault Actions
           </button>
           <button
             onClick={() => setActiveTab('dashboard')}
-            className={`flex items-center py-2 px-4 rounded ${activeTab === 'dashboard' ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}
+            className={`flex items-center py-2 px-4 rounded ${activeTab === 'dashboard' ? 'bg-blue-500 text-white' : 'bg-gray-200 dark:bg-gray-700 dark:text-white'}`}
           >
             <BarChart3 className="mr-2" size={16} />
             Dashboard
@@ -101,7 +111,7 @@ export default function Home() {
         {activeTab === 'mint' && <MintToken />}
         {activeTab === 'vault' && <VaultActions />}
         {activeTab === 'dashboard' && <Dashboard />}
-      </div>
+      </motion.div>
       <Toaster />
     </div>
   );

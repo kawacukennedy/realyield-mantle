@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { WagmiProvider } from './WagmiProvider';
+import { ThemeProvider } from 'next-themes';
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -28,9 +29,11 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <WagmiProvider>
-          {children}
-        </WagmiProvider>
+        <ThemeProvider attribute="class">
+          <WagmiProvider>
+            {children}
+          </WagmiProvider>
+        </ThemeProvider>
       </body>
     </html>
   );
