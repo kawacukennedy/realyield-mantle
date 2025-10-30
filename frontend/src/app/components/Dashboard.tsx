@@ -6,11 +6,21 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 import TransactionHistory from './TransactionHistory';
 import Skeleton from './Skeleton';
 
+interface YieldData {
+  month: string;
+  yield: number;
+}
+
+interface BalanceData {
+  asset: string;
+  balance: number;
+}
+
 export default function Dashboard() {
   const { address } = useAccount();
   const [loading, setLoading] = useState(true);
-  const [yieldData, setYieldData] = useState([]);
-  const [balanceData, setBalanceData] = useState([]);
+  const [yieldData, setYieldData] = useState<YieldData[]>([]);
+  const [balanceData, setBalanceData] = useState<BalanceData[]>([]);
   const [pieData, setPieData] = useState([]);
 
   useEffect(() => {
