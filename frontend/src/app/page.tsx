@@ -5,17 +5,20 @@ import { useAccount, useConnect, useDisconnect } from 'wagmi';
 import { metaMask, walletConnect } from 'wagmi/connectors';
 import toast, { Toaster } from 'react-hot-toast';
 import { motion } from 'framer-motion';
-import { Shield, Upload, Coins, Vault, BarChart3, HelpCircle } from 'lucide-react';
-import { Tooltip } from 'react-tooltip';
-import KYCSection from './components/KYCSection';
-import AssetUpload from './components/AssetUpload';
-import MintToken from './components/MintToken';
-import VaultActions from './components/VaultActions';
-import Dashboard from './components/Dashboard';
-import ThemeToggle from './components/ThemeToggle';
-import Modal from './components/Modal';
-import Footer from './components/Footer';
-import Referrals from './components/Referrals';
+import { Shield, Upload, Coins, Vault, BarChart3 } from 'lucide-react';
+import dynamic from 'next/dynamic';
+
+// Dynamically import components that use wagmi to avoid SSR issues
+const KYCSection = dynamic(() => import('./components/KYCSection'), { ssr: false });
+const AssetUpload = dynamic(() => import('./components/AssetUpload'), { ssr: false });
+const MintToken = dynamic(() => import('./components/MintToken'), { ssr: false });
+const VaultActions = dynamic(() => import('./components/VaultActions'), { ssr: false });
+const Dashboard = dynamic(() => import('./components/Dashboard'), { ssr: false });
+const Referrals = dynamic(() => import('./components/Referrals'), { ssr: false });
+
+const ThemeToggle = dynamic(() => import('./components/ThemeToggle'), { ssr: false });
+const Modal = dynamic(() => import('./components/Modal'), { ssr: false });
+const Footer = dynamic(() => import('./components/Footer'), { ssr: false });
 
 export default function Home() {
   const { address, isConnected } = useAccount();
