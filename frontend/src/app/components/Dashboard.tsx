@@ -28,7 +28,6 @@ export default function Dashboard() {
   const [yieldData, setYieldData] = useState<YieldData[]>([]);
   const [balanceData, setBalanceData] = useState<BalanceData[]>([]);
   const [pieData, setPieData] = useState<PieData[]>([]);
-  const [pieData, setPieData] = useState([]);
 
   useEffect(() => {
     // Simulate loading
