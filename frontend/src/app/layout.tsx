@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { WagmiProvider } from './WagmiProvider';
-import { ThemeProvider } from 'next-themes';
 import ErrorBoundary from './components/ErrorBoundary';
 
 const geistSans = Geist({
@@ -31,13 +30,11 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <ThemeProvider attribute="class">
-          <ErrorBoundary>
-            <WagmiProvider>
-              {children}
-            </WagmiProvider>
-          </ErrorBoundary>
-        </ThemeProvider>
+        <ErrorBoundary>
+          <WagmiProvider>
+            {children}
+          </WagmiProvider>
+        </ErrorBoundary>
       </body>
     </html>
   );
