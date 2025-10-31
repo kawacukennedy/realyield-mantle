@@ -16,6 +16,7 @@ contract VaultContract is Ownable {
     ZKModule public zkModule;
 
     mapping(uint256 => bool) public depositedAssets;
+    mapping(address => uint256) public pendingWithdrawals;
 
     event Deposit(address indexed depositor, uint256 assetId);
     event WithdrawRequest(address indexed user, uint256 shares);
@@ -50,14 +51,16 @@ contract VaultContract is Ownable {
     function requestWithdrawal(uint256 shares) external {
         require(shareToken.balanceOf(msg.sender) >= shares, "Insufficient shares");
         shareToken.transferFrom(msg.sender, address(this), shares);
+        pendingWithdrawals[msg.sender] += shares;
         emit WithdrawRequest(msg.sender, shares);
     }
 
     function settleWithdrawal(bytes memory signedReceipt) external onlyOwner {
-        // Verify signed receipt from custody
-        // For MVP, assume valid
-        // Transfer shares back or handle
-        // Placeholder
-        emit WithdrawFulfilled(msg.sender, 0); // Need to parse receipt
+        // For MVP, decode user and shares from signedReceipt
+        (address user, uint256 shares) = abi.decode(signedReceipt, (address, uint256));
+        require(pendingWithdrawals[user] >= shares, "No pending withdrawal");
+        pendingWithdrawals[user] -= shares;
+        shareToken.transfer(user, shares);
+        emit WithdrawFulfilled(user, shares);
     }
 }

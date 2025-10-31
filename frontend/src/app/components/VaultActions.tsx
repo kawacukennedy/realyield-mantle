@@ -13,6 +13,8 @@ export default function VaultPage() {
   const { isConnected } = useAccount();
   const [depositType, setDepositType] = useState<'fiat' | 'stablecoin'>('stablecoin');
   const [modalOpen, setModalOpen] = useState(false);
+  const [withdrawModalOpen, setWithdrawModalOpen] = useState(false);
+  const [withdrawAmount, setWithdrawAmount] = useState('');
   const { writeContract, isPending } = useWriteContract();
 
   const handleDeposit = () => {
@@ -35,6 +37,20 @@ export default function VaultPage() {
     setModalOpen(false);
   };
 
+  const handleWithdraw = () => {
+    setWithdrawModalOpen(true);
+  };
+
+  const confirmWithdraw = () => {
+    writeContract({
+      address: vaultAddress,
+      abi: vaultAbi,
+      functionName: 'requestWithdrawal',
+      args: [parseInt(withdrawAmount)], // shares
+    });
+    setWithdrawModalOpen(false);
+  };
+
   return (
     <div className="max-w-4xl mx-auto">
       <div className="bg-panel p-6 rounded-lg mb-6">
@@ -45,8 +61,8 @@ export default function VaultPage() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
         <div className="bg-panel p-4 rounded-lg">
           <h3 className="text-lg mb-4">Action Buttons</h3>
-          <button onClick={handleDeposit} className="w-full mb-2 px-4 py-2 bg-primary text-white rounded">Deposit</button>
-          <button className="w-full mb-2 px-4 py-2 bg-secondary text-white rounded">Withdraw</button>
+          <button onClick={handleDeposit} className="w-full mb-2 px-4 py-2 bg-primary text-white rounded">Deposit — requires KYC</button>
+          <button onClick={handleWithdraw} className="w-full mb-2 px-4 py-2 bg-secondary text-white rounded">Withdraw</button>
           <button className="w-full mb-2 px-4 py-2 bg-ghost text-white rounded">View Terms</button>
           <button className="w-full px-4 py-2 bg-ghost text-white rounded">Audit Reports</button>
         </div>
@@ -79,6 +95,21 @@ export default function VaultPage() {
         <p className="mb-4">Estimate shares: 100</p>
         <button onClick={confirmDeposit} disabled={isPending} className="px-4 py-2 bg-primary text-white rounded">
           {isPending ? 'Depositing...' : 'Sign Deposit Tx'}
+        </button>
+      </Modal>
+
+      <Modal isOpen={withdrawModalOpen} onClose={() => setWithdrawModalOpen(false)} title="Withdraw">
+        <div className="mb-4">
+          <label className="block mb-2">Shares to Withdraw</label>
+          <input
+            type="number"
+            value={withdrawAmount}
+            onChange={(e) => setWithdrawAmount(e.target.value)}
+            className="w-full p-2 bg-panel border rounded"
+          />
+        </div>
+        <button onClick={confirmWithdraw} disabled={isPending} className="px-4 py-2 bg-primary text-white rounded">
+          {isPending ? 'Withdrawing...' : 'Request Withdrawal'}
         </button>
       </Modal>
     </div>
