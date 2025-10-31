@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useAccount, useConnect } from 'wagmi';
 import { metaMask, walletConnect } from 'wagmi/connectors';
 import { motion } from 'framer-motion';
+import { Card, CardContent, CardHeader, CardTitle } from './components/Card';
 import Link from 'next/link';
 import Button from './components/Button';
 import Modal from './components/Modal';
@@ -111,11 +112,18 @@ export default function Landing() {
           </select>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
-          <div className="bg-bg-dark p-6 rounded-lg cardLift">
-            <h3 className="text-lg font-semibold mb-2">Real Estate Vault</h3>
-            <p className="text-muted">TVL: $1,000,000 | APY: 8.5% | Risk: Medium</p>
-            <Button className="mt-4">Deposit</Button>
-          </div>
+          <motion.div
+            whileHover={{ scale: 1.05, y: -5 }}
+            transition={{ type: "spring", stiffness: 300 }}
+          >
+            <Card className="bg-bg-dark">
+              <CardContent>
+                <h3 className="text-lg font-semibold mb-2">Real Estate Vault</h3>
+                <p className="text-muted">TVL: $1,000,000 | APY: 8.5% | Risk: Medium</p>
+                <Button className="mt-4">Deposit</Button>
+              </CardContent>
+            </Card>
+          </motion.div>
           <div className="bg-bg-dark p-6 rounded-lg cardLift">
             <h3 className="text-lg font-semibold mb-2">Bond Vault</h3>
             <p className="text-muted">TVL: $500,000 | APY: 5.2% | Risk: Low</p>
@@ -163,16 +171,16 @@ export default function Landing() {
             <div>
               <h3 className="font-semibold mb-4">Company</h3>
               <ul className="space-y-2 text-muted">
+                <li><a href="https://github.com/kawacukennedy/realyield-mantle" target="_blank" rel="noopener noreferrer">GitHub</a></li>
                 <li><a href="#">About</a></li>
                 <li><a href="#">Blog</a></li>
-                <li><a href="#">Careers</a></li>
               </ul>
             </div>
             <div>
               <h3 className="font-semibold mb-4">Resources</h3>
               <ul className="space-y-2 text-muted">
-                <li><a href="#">Docs</a></li>
-                <li><a href="#">API</a></li>
+                <li><a href="/docs">Docs</a></li>
+                <li><a href="/api">API</a></li>
                 <li><a href="#">Support</a></li>
               </ul>
             </div>
@@ -184,6 +192,10 @@ export default function Landing() {
                 <li><a href="#">Compliance</a></li>
               </ul>
             </div>
+          </div>
+          <div className="flex justify-center items-center space-x-4 mb-4">
+            <span className="text-muted">Powered by</span>
+            <span className="text-mantle-blue font-semibold">Mantle Network</span>
           </div>
           <p className="text-muted">© 2024 RealYield. All rights reserved.</p>
         </div>

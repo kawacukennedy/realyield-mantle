@@ -45,6 +45,7 @@ export default function Dashboard() {
   const [activities, setActivities] = useState<Activity[]>([]);
   const [chartData, setChartData] = useState<ChartData[]>([]);
   const [filters, setFilters] = useState({ apy: '', risk: '', assetType: '', jurisdiction: '' });
+  const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
     if (!isConnected) return;
@@ -82,19 +83,29 @@ export default function Dashboard() {
     };
 
     fetchData();
+
+    // Simulate real-time updates every 30 seconds
+    const interval = setInterval(() => {
+      if (isConnected) {
+        fetchData();
+      }
+    }, 30000);
+
+    return () => clearInterval(interval);
   }, [isConnected]);
 
   useEffect(() => {
     const filtered = vaults.filter(vault => {
-      return (
+      const matchesFilters =
         (filters.apy === '' || vault.apy >= parseFloat(filters.apy)) &&
         (filters.risk === '' || vault.risk_score <= parseInt(filters.risk)) &&
         (filters.assetType === '' || vault.asset_type === filters.assetType) &&
-        (filters.jurisdiction === '' || vault.jurisdiction === filters.jurisdiction)
-      );
+        (filters.jurisdiction === '' || vault.jurisdiction === filters.jurisdiction);
+      const matchesSearch = searchTerm === '' || vault.name.toLowerCase().includes(searchTerm.toLowerCase());
+      return matchesFilters && matchesSearch;
     });
     setFilteredVaults(filtered);
-  }, [vaults, filters]);
+  }, [vaults, filters, searchTerm]);
 
   if (!isConnected) {
     return (
@@ -157,6 +168,13 @@ export default function Dashboard() {
         <div className="bg-panel p-4 rounded-lg">
           <h3 className="text-lg font-semibold mb-4">Vaults</h3>
           <div className="mb-4 flex flex-wrap gap-2">
+            <input
+              type="text"
+              placeholder="Search vaults..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="p-2 bg-bg-dark border rounded flex-1 min-w-48"
+            />
             <select
               value={filters.apy}
               onChange={(e) => setFilters({ ...filters, apy: e.target.value })}

@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useAccount } from 'wagmi';
 import { useWriteContract } from 'wagmi';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import toast from 'react-hot-toast';
 import Modal from './Modal';
 
 // Mock contracts
@@ -31,9 +32,10 @@ export default function VaultPage() {
         functionName: 'depositAsset',
         args: [1], // mock assetId
       });
+      toast.success('Deposit transaction submitted!');
     } else {
       // Fiat flow: show transfer instructions
-      alert('Fiat deposit: Transfer to custodian account');
+      toast.info('Fiat deposit: Please transfer to the custodian account provided.');
     }
     setModalOpen(false);
   };

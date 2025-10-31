@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useWriteContract } from 'wagmi';
+import { useDropzone } from 'react-dropzone';
 import toast from 'react-hot-toast';
 
 // Mock contract ABI and address
@@ -42,8 +43,8 @@ export default function CreateAssetWizard() {
     setStep(2);
   };
 
-  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
+  const onDrop = (acceptedFiles: File[]) => {
+    const file = acceptedFiles[0];
     if (file) {
       setDocs(file);
       // Mock upload with progress
@@ -58,6 +59,18 @@ export default function CreateAssetWizard() {
       }, 200);
     }
   };
+
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+    onDrop,
+    accept: {
+      'application/pdf': ['.pdf'],
+      'image/png': ['.png'],
+      'image/jpeg': ['.jpg'],
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document': ['.docx'],
+    },
+    maxSize: 50 * 1024 * 1024, // 50MB
+    multiple: false,
+  });
 
   const onSubmitTerms = (data: Terms) => {
     setTerms(data);
@@ -115,24 +128,36 @@ export default function CreateAssetWizard() {
       {step === 2 && (
         <div>
           <h3 className="text-lg mb-4">Upload Docs</h3>
-          <div className="mb-4">
-            <input
-              type="file"
-              onChange={handleFileUpload}
-              accept=".pdf,.png,.jpg,.docx"
-              className="mb-2"
-            />
-            {uploadProgress > 0 && uploadProgress < 100 && (
-              <div className="w-full bg-muted rounded-full h-2">
-                <div
-                  className="bg-primary h-2 rounded-full"
-                  style={{ width: `${uploadProgress}%` }}
-                ></div>
+          <div
+            {...getRootProps()}
+            className={`border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-colors ${
+              isDragActive ? 'border-primary bg-primary/10' : 'border-muted hover:border-primary'
+            }`}
+          >
+            <input {...getInputProps()} />
+            {docs ? (
+              <div>
+                <p className="text-sm text-muted">File: {docs.name}</p>
+                {uploadProgress > 0 && uploadProgress < 100 && (
+                  <div className="w-full bg-muted rounded-full h-2 mt-2">
+                    <div
+                      className="bg-primary h-2 rounded-full transition-all duration-300"
+                      style={{ width: `${uploadProgress}%` }}
+                    ></div>
+                  </div>
+                )}
+                {cid && <p className="text-sm text-success mt-2">Uploaded successfully! CID: {cid}</p>}
+              </div>
+            ) : (
+              <div>
+                <p className="text-muted mb-2">
+                  {isDragActive ? 'Drop the file here...' : 'Drag & drop a file here, or click to select'}
+                </p>
+                <p className="text-sm text-muted">Supported: PDF, PNG, JPG, DOCX (max 50MB)</p>
               </div>
             )}
-            {cid && <p className="text-sm text-success">Uploaded successfully! CID: {cid}</p>}
           </div>
-          <button onClick={() => setStep(3)} disabled={!cid} className="px-4 py-2 bg-primary text-white rounded">Next</button>
+          <button onClick={() => setStep(3)} disabled={!cid} className="px-4 py-2 bg-primary text-white rounded mt-4">Next</button>
         </div>
       )}
 
