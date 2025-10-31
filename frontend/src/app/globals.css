@@ -3,12 +3,21 @@
 :root {
   --mantle-blue: #00BFFF;
   --mantle-green: #00FFB2;
+  --mantle-purple: #8B5CF6;
   --bg-dark: #0E141B;
-  --panel: #111418;
+  --bg-card: #111418;
+  --bg-muted: #1A1F2B;
   --text: #E6EEF3;
-  --muted: #98A2B3;
+  --text-muted: #98A2B3;
+  --text-accent: #CBD5E1;
+  --border: #334155;
+  --border-light: #475569;
   --success: #16A34A;
+  --warning: #F59E0B;
   --danger: #EF4444;
+  --primary: var(--mantle-blue);
+  --secondary: var(--mantle-green);
+  --accent: var(--mantle-purple);
   --spacing-4: 4px;
   --spacing-8: 8px;
   --spacing-12: 12px;
@@ -19,41 +28,128 @@
   --radius-sm: 6px;
   --radius-md: 12px;
   --radius-lg: 24px;
-  --font-h1: 48px/56px semibold;
-  --font-h2: 32px/40px semibold;
-  --font-body: 16px/24px regular;
-  --font-mono: 14px/20px monospace;
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  --gradient-primary: linear-gradient(135deg, var(--mantle-blue), var(--mantle-purple));
+  --gradient-secondary: linear-gradient(135deg, var(--mantle-green), var(--mantle-blue));
 }
 
 body {
   background: var(--bg-dark);
   color: var(--text);
-  font-family: var(--font-sans);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  color: var(--text);
+  font-weight: 600;
+  line-height: 1.2;
+  margin-bottom: 0.5rem;
+}
+
+p {
+  margin-bottom: 1rem;
+}
+
+a {
+  color: var(--primary);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+a:hover {
+  color: var(--secondary);
+}
+
+button {
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+input, textarea, select {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  color: var(--text);
+  padding: 0.5rem 0.75rem;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+input:focus, textarea:focus, select:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(0, 191, 255, 0.1);
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideIn {
+  from { opacity: 0; transform: translateX(-20px); }
+  to { opacity: 1; transform: translateX(0); }
 }
 
 @keyframes cardLift {
-  from { transform: translateY(0); box-shadow: 0 0 0 rgba(0, 191, 255, 0); }
-  to { transform: translateY(-6px); box-shadow: 0 6px 12px rgba(0, 191, 255, 0.3); }
+  from { transform: translateY(0); box-shadow: var(--shadow-sm); }
+  to { transform: translateY(-8px); box-shadow: var(--shadow-lg); }
 }
 
 @keyframes pulse {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.02); }
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.05); opacity: 0.8; }
+}
+
+@keyframes shimmer {
+  0% { background-position: -200px 0; }
+  100% { background-position: calc(200px + 100%) 0; }
 }
 
 .fadeIn {
-  animation: fadeIn 0.28s ease;
+  animation: fadeIn 0.5s ease-out;
+}
+
+.slideIn {
+  animation: slideIn 0.3s ease-out;
 }
 
 .cardLift:hover {
-  animation: cardLift 0.28s;
+  animation: cardLift 0.3s ease-out;
 }
 
 .pulse {
-  animation: pulse 0.6s ease infinite alternate;
+  animation: pulse 1s ease-in-out infinite;
+}
+
+.shimmer {
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+  background-size: 200px 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-muted);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border-light);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--primary);
 }
