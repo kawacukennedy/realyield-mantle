@@ -35,7 +35,7 @@ export default function VaultPage() {
       toast.success('Deposit transaction submitted!');
     } else {
       // Fiat flow: show transfer instructions
-      toast.info('Fiat deposit: Please transfer to the custodian account provided.');
+      toast('Fiat deposit: Please transfer to the custodian account provided.', { icon: 'ℹ️' });
     }
     setModalOpen(false);
   };
