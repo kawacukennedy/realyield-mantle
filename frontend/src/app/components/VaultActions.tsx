@@ -1,82 +1,85 @@
 'use client';
 
 import { useState } from 'react';
-import { useWriteContract, useEstimateGas } from 'wagmi';
-import { parseEther } from 'viem';
+import { useAccount } from 'wagmi';
+import { useWriteContract } from 'wagmi';
 import Modal from './Modal';
 
-// Mock vault contract
+// Mock contracts
 const vaultAddress = '0x...';
 const vaultAbi: readonly any[] = [];
 
-export default function VaultActions() {
-  const [amount, setAmount] = useState('');
+export default function VaultPage() {
+  const { isConnected } = useAccount();
+  const [depositType, setDepositType] = useState<'fiat' | 'stablecoin'>('stablecoin');
   const [modalOpen, setModalOpen] = useState(false);
-  const [actionType, setActionType] = useState<'deposit' | 'withdraw'>('deposit');
   const { writeContract, isPending } = useWriteContract();
 
-  const { data: gasEstimate } = useEstimateGas({
-    to: vaultAddress,
-    data: '0x', // Mock
-  });
-
-  const handleAction = (type: 'deposit' | 'withdraw') => {
-    setActionType(type);
+  const handleDeposit = () => {
+    if (!isConnected) return;
     setModalOpen(true);
   };
 
-  const confirmAction = () => {
-    if (actionType === 'deposit') {
+  const confirmDeposit = () => {
+    if (depositType === 'stablecoin') {
       writeContract({
         address: vaultAddress,
         abi: vaultAbi,
-        functionName: 'deposit',
-        args: [parseEther(amount)],
+        functionName: 'depositAsset',
+        args: [1], // mock assetId
       });
     } else {
-      writeContract({
-        address: vaultAddress,
-        abi: vaultAbi,
-        functionName: 'withdraw',
-        args: [parseEther(amount), 'mock-proof'],
-      });
+      // Fiat flow: show transfer instructions
+      alert('Fiat deposit: Transfer to custodian account');
     }
     setModalOpen(false);
   };
 
   return (
-    <div>
-      <h2 className="text-2xl mb-4">Vault Actions</h2>
-      <input
-        type="text"
-        placeholder="Amount"
-        value={amount}
-        onChange={(e) => setAmount(e.target.value)}
-        className="w-full p-2 border rounded mb-4 dark:bg-gray-700 dark:text-white"
-      />
-      {gasEstimate && (
-        <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">Estimated Gas: {gasEstimate.toString()}</p>
-      )}
-      <button
-        onClick={() => handleAction('deposit')}
-        disabled={isPending || !amount}
-        className="w-full bg-green-500 text-white py-2 px-4 rounded mb-2 disabled:opacity-50"
-      >
-        Deposit
-      </button>
-      <button
-        onClick={() => handleAction('withdraw')}
-        disabled={isPending || !amount}
-        className="w-full bg-red-500 text-white py-2 px-4 rounded disabled:opacity-50"
-      >
-        Withdraw
-      </button>
-      <Modal isOpen={modalOpen} onClose={() => setModalOpen(false)} title="Confirm Action">
-        <p>Are you sure you want to {actionType} {amount} tokens?</p>
-        <div className="flex justify-end mt-4">
-          <button onClick={() => setModalOpen(false)} className="mr-2 px-4 py-2 bg-gray-300 rounded">Cancel</button>
-          <button onClick={confirmAction} className="px-4 py-2 bg-blue-500 text-white rounded">Confirm</button>
+    <div className="max-w-4xl mx-auto">
+      <div className="bg-panel p-6 rounded-lg mb-6">
+        <h2 className="text-2xl mb-2">Vault Name</h2>
+        <p>TVL: $100,000 | APY: 8.5% | Jurisdiction: US | Risk Score: 3</p>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+        <div className="bg-panel p-4 rounded-lg">
+          <h3 className="text-lg mb-4">Action Buttons</h3>
+          <button onClick={handleDeposit} className="w-full mb-2 px-4 py-2 bg-primary text-white rounded">Deposit</button>
+          <button className="w-full mb-2 px-4 py-2 bg-secondary text-white rounded">Withdraw</button>
+          <button className="w-full mb-2 px-4 py-2 bg-ghost text-white rounded">View Terms</button>
+          <button className="w-full px-4 py-2 bg-ghost text-white rounded">Audit Reports</button>
         </div>
+
+        <div className="bg-panel p-4 rounded-lg">
+          <h3 className="text-lg mb-4">Holdings</h3>
+          <p>Assets backing vault</p>
+          {/* Table of assets */}
+        </div>
+      </div>
+
+      <div className="bg-panel p-4 rounded-lg mb-6">
+        <h3 className="text-lg mb-4">Yield Schedule & History</h3>
+        {/* Charts */}
+      </div>
+
+      <div className="bg-panel p-4 rounded-lg">
+        <h3 className="text-lg mb-4">Withdrawal Queue</h3>
+        <p>Expected fulfillment time: 24 hours</p>
+      </div>
+
+      <Modal isOpen={modalOpen} onClose={() => setModalOpen(false)} title="Deposit">
+        <div className="mb-4">
+          <label className="block mb-2">Deposit Type</label>
+          <select value={depositType} onChange={(e) => setDepositType(e.target.value as 'fiat' | 'stablecoin')} className="w-full p-2 bg-panel border rounded">
+            <option value="fiat">Fiat (Custodial)</option>
+            <option value="stablecoin">Stablecoin</option>
+          </select>
+        </div>
+        <p className="mb-4">Estimate shares: 100</p>
+        <button onClick={confirmDeposit} disabled={isPending} className="px-4 py-2 bg-primary text-white rounded">
+          {isPending ? 'Depositing...' : 'Sign Deposit Tx'}
+        </button>
       </Modal>
     </div>
   );
