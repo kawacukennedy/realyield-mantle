@@ -4,18 +4,13 @@ pragma solidity ^0.8.19;
 import "@openzeppelin/contracts/access/Ownable.sol";
 
 contract ZKModule is Ownable {
-    // Placeholder for ZK proofs
-    mapping(address => bool) public verifiedProofs;
-
-    event ProofVerified(address indexed user);
+    event ProofSubmitted(address indexed user, bytes32 proofHash);
 
     constructor() Ownable(msg.sender) {}
 
-    function verifyWithdrawalProof(address user, bytes memory proof) external returns (bool) {
-        // In real implementation, verify ZK proof
-        // For MVP, just set verified
-        verifiedProofs[user] = true;
-        emit ProofVerified(user);
-        return true;
+    function verifyProof(bytes memory proof, bytes memory publicInputs) external pure returns (bool) {
+        // Placeholder: in real implementation, verify ZK proof against public inputs
+        // For MVP, assume valid if proof length > 0
+        return proof.length > 0;
     }
 }

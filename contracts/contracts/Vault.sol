@@ -1,59 +1,63 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.19;
 
-import "@openzeppelin/contracts/token/ERC20/extensions/ERC4626.sol";
-import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "./AssetTokenizer.sol";
 import "./ComplianceModule.sol";
 import "./ZKModule.sol";
+import "./YieldDistributor.sol";
+import "./ShareToken.sol";
 
-contract Vault is ERC4626, Ownable {
+contract VaultContract is Ownable {
     AssetTokenizer public assetTokenizer;
+    ShareToken public shareToken;
     ComplianceModule public compliance;
+    YieldDistributor public yieldDistributor;
     ZKModule public zkModule;
 
-    mapping(uint256 => uint256) public assetDeposits; // tokenId => amount
+    mapping(uint256 => bool) public depositedAssets;
 
-    event AssetDeposited(uint256 indexed tokenId, uint256 amount, address indexed depositor);
+    event Deposit(address indexed depositor, uint256 assetId);
+    event WithdrawRequest(address indexed user, uint256 shares);
+    event WithdrawFulfilled(address indexed user, uint256 shares);
 
     constructor(
-        ERC20 _asset,
         AssetTokenizer _assetTokenizer,
+        ShareToken _shareToken,
         ComplianceModule _compliance,
+        YieldDistributor _yieldDistributor,
         ZKModule _zkModule
-    ) ERC4626(_asset) ERC20("Vault Share", "VSHARE") Ownable(msg.sender) {
+    ) Ownable(msg.sender) {
         assetTokenizer = _assetTokenizer;
+        shareToken = _shareToken;
         compliance = _compliance;
+        yieldDistributor = _yieldDistributor;
         zkModule = _zkModule;
     }
 
-    function depositAsset(uint256 tokenId, uint256 amount) external {
-        require(compliance.isCompliant(msg.sender), "Not compliant");
-        require(assetTokenizer.balanceOf(msg.sender, tokenId) >= amount, "Insufficient balance");
-
-        assetTokenizer.safeTransferFrom(msg.sender, address(this), tokenId, amount, "");
-        assetDeposits[tokenId] += amount;
-
-        emit AssetDeposited(tokenId, amount, msg.sender);
+    function depositAsset(uint256 assetId) external {
+        require(compliance.verifyAttestation(msg.sender, ""), "Not compliant"); // Placeholder
+        require(!depositedAssets[assetId], "Already deposited");
+        // Assume transfer or lock
+        assetTokenizer.lockAssetForVault(assetId, address(this));
+        depositedAssets[assetId] = true;
+        // Mint shares based on valuation
+        uint256 valuation = assetTokenizer.assets(assetId).valuation;
+        shareToken.mint(msg.sender, valuation); // Simple 1:1 for MVP
+        emit Deposit(msg.sender, assetId);
     }
 
-    function withdrawAsset(uint256 tokenId, uint256 amount, bytes memory proof) external {
-        require(zkModule.verifyWithdrawalProof(msg.sender, proof), "Invalid proof");
-        require(assetDeposits[tokenId] >= amount, "Insufficient vault balance");
-
-        assetDeposits[tokenId] -= amount;
-        assetTokenizer.safeTransferFrom(address(this), msg.sender, tokenId, amount, "");
+    function requestWithdrawal(uint256 shares) external {
+        require(shareToken.balanceOf(msg.sender) >= shares, "Insufficient shares");
+        shareToken.transferFrom(msg.sender, address(this), shares);
+        emit WithdrawRequest(msg.sender, shares);
     }
 
-    // Override deposit to include compliance
-    function deposit(uint256 assets, address receiver) public override returns (uint256) {
-        require(compliance.isCompliant(receiver), "Not compliant");
-        return super.deposit(assets, receiver);
-    }
-
-    function mint(uint256 shares, address receiver) public override returns (uint256) {
-        require(compliance.isCompliant(receiver), "Not compliant");
-        return super.mint(shares, receiver);
+    function settleWithdrawal(bytes memory signedReceipt) external onlyOwner {
+        // Verify signed receipt from custody
+        // For MVP, assume valid
+        // Transfer shares back or handle
+        // Placeholder
+        emit WithdrawFulfilled(msg.sender, 0); // Need to parse receipt
     }
 }

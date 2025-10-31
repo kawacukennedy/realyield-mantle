@@ -1,56 +1,49 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.19;
 
-import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
-contract AssetTokenizer is ERC1155, Ownable {
-    uint256 private _nextTokenId;
+contract AssetTokenizer is Ownable {
+    uint256 private _nextAssetId;
 
     struct Asset {
-        string metadataURI;
-        bytes32 commitmentHash;
-        address custodian;
-        bool settled;
+        string uri;
+        address issuer;
+        bytes32 proofHash;
+        uint256 valuation;
+        uint256 maturity;
+        bool locked;
     }
 
     mapping(uint256 => Asset) public assets;
 
-    event AssetMinted(uint256 indexed tokenId, address indexed custodian, string metadataURI);
+    event AssetMinted(uint256 indexed assetId, address indexed issuer, string uri);
 
-    constructor() ERC1155("") Ownable(msg.sender) {}
+    constructor() Ownable(msg.sender) {}
 
     function mintAsset(
-        address to,
-        uint256 amount,
-        string memory metadataURI,
-        bytes32 commitmentHash,
-        address custodian
+        string memory uri,
+        address issuer,
+        bytes32 proofHash,
+        uint256 valuation,
+        uint256 maturity
     ) external onlyOwner returns (uint256) {
-        uint256 tokenId = _nextTokenId++;
-        _mint(to, tokenId, amount, "");
-
-        assets[tokenId] = Asset({
-            metadataURI: metadataURI,
-            commitmentHash: commitmentHash,
-            custodian: custodian,
-            settled: false
+        uint256 assetId = _nextAssetId++;
+        assets[assetId] = Asset({
+            uri: uri,
+            issuer: issuer,
+            proofHash: proofHash,
+            valuation: valuation,
+            maturity: maturity,
+            locked: false
         });
 
-        emit AssetMinted(tokenId, custodian, metadataURI);
-        return tokenId;
+        emit AssetMinted(assetId, issuer, uri);
+        return assetId;
     }
 
-    function settleAsset(uint256 tokenId) external {
-        require(msg.sender == assets[tokenId].custodian, "Only custodian can settle");
-        assets[tokenId].settled = true;
-    }
-
-    function setURI(uint256 tokenId, string memory newURI) external onlyOwner {
-        assets[tokenId].metadataURI = newURI;
-    }
-
-    function uri(uint256 tokenId) public view override returns (string memory) {
-        return assets[tokenId].metadataURI;
+    function lockAssetForVault(uint256 assetId, address vault) external {
+        require(msg.sender == assets[assetId].issuer || msg.sender == owner(), "Not authorized");
+        assets[assetId].locked = true;
     }
 }

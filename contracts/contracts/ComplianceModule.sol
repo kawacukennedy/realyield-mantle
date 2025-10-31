@@ -4,27 +4,18 @@ pragma solidity ^0.8.19;
 import "@openzeppelin/contracts/access/Ownable.sol";
 
 contract ComplianceModule is Ownable {
-    enum Role { None, Investor, Depositor, Custodian }
+    mapping(address => bytes) public attestations;
 
-    mapping(address => bool) public kycApproved;
-    mapping(address => Role) public roles;
-
-    event KYCApproved(address indexed user);
-    event RoleAssigned(address indexed user, Role role);
+    event KYCAttested(address indexed wallet, bytes32 attestationHash);
 
     constructor() Ownable(msg.sender) {}
 
-    function approveKYC(address user) external onlyOwner {
-        kycApproved[user] = true;
-        emit KYCApproved(user);
+    function attestKYC(address wallet, bytes memory attestation) external onlyOwner {
+        attestations[wallet] = attestation;
+        emit KYCAttested(wallet, keccak256(attestation));
     }
 
-    function assignRole(address user, Role role) external onlyOwner {
-        roles[user] = role;
-        emit RoleAssigned(user, role);
-    }
-
-    function isCompliant(address user) external view returns (bool) {
-        return kycApproved[user] && roles[user] != Role.None;
+    function verifyAttestation(address wallet, bytes memory attestation) external view returns (bool) {
+        return keccak256(attestations[wallet]) == keccak256(attestation);
     }
 }

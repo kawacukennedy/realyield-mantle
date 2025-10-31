@@ -3,33 +3,29 @@ pragma solidity ^0.8.19;
 
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "./Vault.sol";
+import "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
 
 contract YieldDistributor is Ownable {
-    Vault public vault;
     ERC20 public rewardToken;
+    bytes32 public merkleRoot;
+    mapping(uint256 => mapping(address => bool)) public claimed;
 
-    uint256 public totalYield;
-    mapping(address => uint256) public userYield;
+    event YieldDistributed(uint256 indexed period, bytes32 merkleRoot);
 
-    event YieldDistributed(address indexed user, uint256 amount);
-
-    constructor(Vault _vault, ERC20 _rewardToken) Ownable(msg.sender) {
-        vault = _vault;
+    constructor(ERC20 _rewardToken) Ownable(msg.sender) {
         rewardToken = _rewardToken;
     }
 
-    function distributeYield(address user, uint256 amount) external onlyOwner {
-        require(rewardToken.balanceOf(address(this)) >= amount, "Insufficient rewards");
-        userYield[user] += amount;
-        totalYield += amount;
-        emit YieldDistributed(user, amount);
+    function distributeYield(uint256 period, bytes32 _merkleRoot) external onlyOwner {
+        merkleRoot = _merkleRoot;
+        emit YieldDistributed(period, _merkleRoot);
     }
 
-    function claimYield() external {
-        uint256 amount = userYield[msg.sender];
-        require(amount > 0, "No yield to claim");
-        userYield[msg.sender] = 0;
-        rewardToken.transfer(msg.sender, amount);
+    function claimYield(uint256 period, address account, uint256 amount, bytes32[] calldata proof) external {
+        require(!claimed[period][account], "Already claimed");
+        bytes32 leaf = keccak256(abi.encodePacked(account, amount));
+        require(MerkleProof.verify(proof, merkleRoot, leaf), "Invalid proof");
+        claimed[period][account] = true;
+        rewardToken.transfer(account, amount);
     }
 }
