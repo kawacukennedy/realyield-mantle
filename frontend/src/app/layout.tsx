@@ -4,6 +4,7 @@ import "./globals.css";
 import { WagmiProvider } from './WagmiProvider';
 import ErrorBoundary from './components/ErrorBoundary';
 import Toast from './components/Toast';
+import ClientWrapper from './components/ClientWrapper';
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -33,8 +34,10 @@ export default function RootLayout({
       >
         <ErrorBoundary>
           <WagmiProvider>
-            {children}
-            <Toast />
+            <ClientWrapper>
+              {children}
+              <Toast />
+            </ClientWrapper>
           </WagmiProvider>
         </ErrorBoundary>
       </body>
