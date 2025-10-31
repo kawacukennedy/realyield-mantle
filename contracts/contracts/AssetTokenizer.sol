@@ -46,4 +46,8 @@ contract AssetTokenizer is Ownable {
         require(msg.sender == assets[assetId].issuer || msg.sender == owner(), "Not authorized");
         assets[assetId].locked = true;
     }
+
+    function getAsset(uint256 assetId) external view returns (Asset memory) {
+        return assets[assetId];
+    }
 }

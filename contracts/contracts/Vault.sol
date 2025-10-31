@@ -43,7 +43,8 @@ contract VaultContract is Ownable {
         assetTokenizer.lockAssetForVault(assetId, address(this));
         depositedAssets[assetId] = true;
         // Mint shares based on valuation
-        uint256 valuation = assetTokenizer.assets(assetId).valuation;
+        AssetTokenizer.Asset memory asset = assetTokenizer.getAsset(assetId);
+        uint256 valuation = asset.valuation;
         shareToken.mint(msg.sender, valuation); // Simple 1:1 for MVP
         emit Deposit(msg.sender, assetId);
     }
