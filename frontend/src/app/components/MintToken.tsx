@@ -30,6 +30,7 @@ export default function CreateAssetWizard() {
   const [assetInfo, setAssetInfo] = useState<AssetInfo | null>(null);
   const [docs, setDocs] = useState<File | null>(null);
   const [cid, setCid] = useState<string>('');
+  const [uploadProgress, setUploadProgress] = useState(0);
   const [terms, setTerms] = useState<Terms | null>(null);
 
   const { register: registerInfo, handleSubmit: handleSubmitInfo, formState: { errors: errorsInfo } } = useForm<AssetInfo>();
@@ -45,8 +46,16 @@ export default function CreateAssetWizard() {
     const file = event.target.files?.[0];
     if (file) {
       setDocs(file);
-      // Mock IPFS upload
-      setCid('QmMockCID' + Math.random());
+      // Mock upload with progress
+      let progress = 0;
+      const interval = setInterval(() => {
+        progress += 10;
+        setUploadProgress(progress);
+        if (progress >= 100) {
+          clearInterval(interval);
+          setCid('QmMockCID' + Math.random());
+        }
+      }, 200);
     }
   };
 
@@ -89,11 +98,16 @@ export default function CreateAssetWizard() {
       {step === 1 && (
         <form onSubmit={handleSubmitInfo(onSubmitInfo)}>
           <h3 className="text-lg mb-4">Asset Info</h3>
-          <input {...registerInfo('title', { required: true })} placeholder="Title" className="w-full p-2 mb-2 bg-panel border rounded" />
-          <input {...registerInfo('issuerName', { required: true })} placeholder="Issuer Name" className="w-full p-2 mb-2 bg-panel border rounded" />
-          <input {...registerInfo('valuation', { required: true, valueAsNumber: true })} type="number" placeholder="Valuation" className="w-full p-2 mb-2 bg-panel border rounded" />
-          <input {...registerInfo('maturity', { required: true })} type="date" className="w-full p-2 mb-2 bg-panel border rounded" />
-          <input {...registerInfo('currency', { required: true })} placeholder="Currency" className="w-full p-2 mb-4 bg-panel border rounded" />
+          <input {...registerInfo('title', { required: 'Title is required' })} placeholder="Title" className="w-full p-2 mb-2 bg-panel border rounded" />
+          {errorsInfo.title && <p className="text-danger text-sm">{errorsInfo.title.message}</p>}
+          <input {...registerInfo('issuerName', { required: 'Issuer Name is required' })} placeholder="Issuer Name" className="w-full p-2 mb-2 bg-panel border rounded" />
+          {errorsInfo.issuerName && <p className="text-danger text-sm">{errorsInfo.issuerName.message}</p>}
+          <input {...registerInfo('valuation', { required: 'Valuation is required', valueAsNumber: true, min: { value: 0, message: 'Must be positive' } })} type="number" placeholder="Valuation" className="w-full p-2 mb-2 bg-panel border rounded" />
+          {errorsInfo.valuation && <p className="text-danger text-sm">{errorsInfo.valuation.message}</p>}
+          <input {...registerInfo('maturity', { required: 'Maturity is required' })} type="date" className="w-full p-2 mb-2 bg-panel border rounded" />
+          {errorsInfo.maturity && <p className="text-danger text-sm">{errorsInfo.maturity.message}</p>}
+          <input {...registerInfo('currency', { required: 'Currency is required' })} placeholder="Currency" className="w-full p-2 mb-4 bg-panel border rounded" />
+          {errorsInfo.currency && <p className="text-danger text-sm">{errorsInfo.currency.message}</p>}
           <button type="submit" className="px-4 py-2 bg-primary text-white rounded">Next</button>
         </form>
       )}
@@ -101,9 +115,24 @@ export default function CreateAssetWizard() {
       {step === 2 && (
         <div>
           <h3 className="text-lg mb-4">Upload Docs</h3>
-          <input type="file" onChange={handleFileUpload} className="mb-4" />
-          {cid && <p className="text-sm text-muted">CID: {cid}</p>}
-          <button onClick={() => setStep(3)} className="px-4 py-2 bg-primary text-white rounded">Next</button>
+          <div className="mb-4">
+            <input
+              type="file"
+              onChange={handleFileUpload}
+              accept=".pdf,.png,.jpg,.docx"
+              className="mb-2"
+            />
+            {uploadProgress > 0 && uploadProgress < 100 && (
+              <div className="w-full bg-muted rounded-full h-2">
+                <div
+                  className="bg-primary h-2 rounded-full"
+                  style={{ width: `${uploadProgress}%` }}
+                ></div>
+              </div>
+            )}
+            {cid && <p className="text-sm text-success">Uploaded successfully! CID: {cid}</p>}
+          </div>
+          <button onClick={() => setStep(3)} disabled={!cid} className="px-4 py-2 bg-primary text-white rounded">Next</button>
         </div>
       )}
 
@@ -118,9 +147,12 @@ export default function CreateAssetWizard() {
       {step === 4 && (
         <form onSubmit={handleSubmitTerms(onSubmitTerms)}>
           <h3 className="text-lg mb-4">Terms</h3>
-          <input {...registerTerms('fees', { required: true, valueAsNumber: true })} type="number" placeholder="Fees" className="w-full p-2 mb-2 bg-panel border rounded" />
-          <input {...registerTerms('yieldSchedule', { required: true })} placeholder="Yield Schedule" className="w-full p-2 mb-2 bg-panel border rounded" />
-          <input {...registerTerms('liquidationPreference', { required: true })} placeholder="Liquidation Preference" className="w-full p-2 mb-4 bg-panel border rounded" />
+          <input {...registerTerms('fees', { required: 'Fees are required', valueAsNumber: true })} type="number" placeholder="Fees (%)" className="w-full p-2 mb-2 bg-panel border rounded" />
+          {errorsTerms.fees && <p className="text-danger text-sm">{errorsTerms.fees.message}</p>}
+          <input {...registerTerms('yieldSchedule', { required: 'Yield Schedule is required' })} placeholder="Yield Schedule" className="w-full p-2 mb-2 bg-panel border rounded" />
+          {errorsTerms.yieldSchedule && <p className="text-danger text-sm">{errorsTerms.yieldSchedule.message}</p>}
+          <input {...registerTerms('liquidationPreference', { required: 'Liquidation Preference is required' })} placeholder="Liquidation Preference" className="w-full p-2 mb-4 bg-panel border rounded" />
+          {errorsTerms.liquidationPreference && <p className="text-danger text-sm">{errorsTerms.liquidationPreference.message}</p>}
           <button type="submit" className="px-4 py-2 bg-primary text-white rounded">Next</button>
         </form>
       )}

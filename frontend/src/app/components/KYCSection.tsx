@@ -9,6 +9,8 @@ export default function KYCOnboardingFlow() {
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [attestation, setAttestation] = useState<any>(null);
+  const [formData, setFormData] = useState({ email: '', name: '', dob: '', address: '' });
+  const [consent, setConsent] = useState(false);
 
   const handleProfile = () => {
     setStep(2);
@@ -49,7 +51,18 @@ export default function KYCOnboardingFlow() {
       {step === 1 && (
         <div>
           <h3 className="text-lg mb-4">Profile Creation</h3>
-          <input placeholder="Email" className="w-full p-2 mb-4 bg-panel border rounded" />
+          <input
+            placeholder="Email"
+            value={formData.email}
+            onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+            className="w-full p-2 mb-2 bg-panel border rounded"
+          />
+          <input
+            placeholder="Full Name"
+            value={formData.name}
+            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+            className="w-full p-2 mb-4 bg-panel border rounded"
+          />
           <button onClick={handleProfile} className="px-4 py-2 bg-primary text-white rounded">Next</button>
         </div>
       )}
@@ -57,7 +70,20 @@ export default function KYCOnboardingFlow() {
       {step === 2 && (
         <div>
           <h3 className="text-lg mb-4">KYC Form</h3>
-          <p className="mb-4">PII collected here</p>
+          <p className="mb-4">Please provide your personal information for verification.</p>
+          <input
+            placeholder="Date of Birth"
+            type="date"
+            value={formData.dob}
+            onChange={(e) => setFormData({ ...formData, dob: e.target.value })}
+            className="w-full p-2 mb-2 bg-panel border rounded"
+          />
+          <input
+            placeholder="Address"
+            value={formData.address}
+            onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+            className="w-full p-2 mb-4 bg-panel border rounded"
+          />
           <button onClick={handleKYCForm} disabled={loading} className="px-4 py-2 bg-primary text-white rounded">
             {loading ? 'Validating...' : 'Submit KYC'}
           </button>
@@ -67,8 +93,17 @@ export default function KYCOnboardingFlow() {
       {step === 3 && (
         <div>
           <h3 className="text-lg mb-4">Consent & Data Retention</h3>
-          <p className="mb-4">Agree to terms</p>
-          <button onClick={handleConsent} className="px-4 py-2 bg-primary text-white rounded">Agree</button>
+          <p className="mb-4">By proceeding, you consent to the collection and processing of your personal data for KYC purposes. Data will be retained for compliance and deleted upon request.</p>
+          <label className="flex items-center mb-4">
+            <input
+              type="checkbox"
+              checked={consent}
+              onChange={(e) => setConsent(e.target.checked)}
+              className="mr-2"
+            />
+            I agree to the terms and data retention policy.
+          </label>
+          <button onClick={handleConsent} disabled={!consent} className="px-4 py-2 bg-primary text-white rounded disabled:opacity-50">Agree</button>
         </div>
       )}
 

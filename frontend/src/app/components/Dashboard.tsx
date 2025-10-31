@@ -18,6 +18,8 @@ interface Vault {
   tvl: number;
   apy: number;
   risk_score: number;
+  jurisdiction: string;
+  asset_type: string;
 }
 
 interface Activity {
@@ -39,8 +41,10 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true);
   const [portfolio, setPortfolio] = useState<PortfolioData>({ tvl: 0, totalYieldEarned: 0, pendingWithdrawals: 0 });
   const [vaults, setVaults] = useState<Vault[]>([]);
+  const [filteredVaults, setFilteredVaults] = useState<Vault[]>([]);
   const [activities, setActivities] = useState<Activity[]>([]);
   const [chartData, setChartData] = useState<ChartData[]>([]);
+  const [filters, setFilters] = useState({ apy: '', risk: '', assetType: '', jurisdiction: '' });
 
   useEffect(() => {
     if (!isConnected) return;
@@ -62,6 +66,14 @@ export default function Dashboard() {
           { timestamp: '2023-09-01', vault: 'Real Estate', apy: 8.5, fiatValue: 1000 },
           { timestamp: '2023-09-02', vault: 'Real Estate', apy: 8.5, fiatValue: 1050 },
         ]);
+
+        // Mock vaults with more data
+        const mockVaults = [
+          { id: '1', name: 'Real Estate Vault', tvl: 50000, apy: 8.5, risk_score: 3, jurisdiction: 'US', asset_type: 'Real Estate' },
+          { id: '2', name: 'Bond Vault', tvl: 30000, apy: 5.2, risk_score: 2, jurisdiction: 'EU', asset_type: 'Bonds' },
+        ];
+        setVaults(mockVaults);
+        setFilteredVaults(mockVaults);
       } catch (error) {
         console.error(error);
       } finally {
@@ -71,6 +83,18 @@ export default function Dashboard() {
 
     fetchData();
   }, [isConnected]);
+
+  useEffect(() => {
+    const filtered = vaults.filter(vault => {
+      return (
+        (filters.apy === '' || vault.apy >= parseFloat(filters.apy)) &&
+        (filters.risk === '' || vault.risk_score <= parseInt(filters.risk)) &&
+        (filters.assetType === '' || vault.asset_type === filters.assetType) &&
+        (filters.jurisdiction === '' || vault.jurisdiction === filters.jurisdiction)
+      );
+    });
+    setFilteredVaults(filtered);
+  }, [vaults, filters]);
 
   if (!isConnected) {
     return (
@@ -132,11 +156,52 @@ export default function Dashboard() {
       <div className="space-y-4">
         <div className="bg-panel p-4 rounded-lg">
           <h3 className="text-lg font-semibold mb-4">Vaults</h3>
+          <div className="mb-4 flex flex-wrap gap-2">
+            <select
+              value={filters.apy}
+              onChange={(e) => setFilters({ ...filters, apy: e.target.value })}
+              className="p-2 bg-bg-dark border rounded"
+            >
+              <option value="">APY: Any</option>
+              <option value="5">5%+</option>
+              <option value="7">7%+</option>
+              <option value="10">10%+</option>
+            </select>
+            <select
+              value={filters.risk}
+              onChange={(e) => setFilters({ ...filters, risk: e.target.value })}
+              className="p-2 bg-bg-dark border rounded"
+            >
+              <option value="">Risk: Any</option>
+              <option value="2">Low (≤2)</option>
+              <option value="3">Medium (≤3)</option>
+              <option value="5">High (≤5)</option>
+            </select>
+            <select
+              value={filters.assetType}
+              onChange={(e) => setFilters({ ...filters, assetType: e.target.value })}
+              className="p-2 bg-bg-dark border rounded"
+            >
+              <option value="">Asset Type: Any</option>
+              <option value="Real Estate">Real Estate</option>
+              <option value="Bonds">Bonds</option>
+              <option value="Invoices">Invoices</option>
+            </select>
+            <select
+              value={filters.jurisdiction}
+              onChange={(e) => setFilters({ ...filters, jurisdiction: e.target.value })}
+              className="p-2 bg-bg-dark border rounded"
+            >
+              <option value="">Jurisdiction: Any</option>
+              <option value="US">US</option>
+              <option value="EU">EU</option>
+            </select>
+          </div>
           <div className="space-y-2">
-            {vaults.map(vault => (
-              <div key={vault.id} className="p-2 border rounded">
+            {filteredVaults.map(vault => (
+              <div key={vault.id} className="p-2 border rounded cardLift">
                 <p>{vault.name}</p>
-                <p>TVL: ${vault.tvl.toLocaleString()} | APY: {vault.apy}% | Risk: {vault.risk_score}</p>
+                <p>TVL: ${vault.tvl.toLocaleString()} | APY: {vault.apy}% | Risk: {vault.risk_score} | {vault.jurisdiction}</p>
               </div>
             ))}
           </div>

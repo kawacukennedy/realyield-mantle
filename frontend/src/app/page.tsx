@@ -8,6 +8,7 @@ import Link from 'next/link';
 import Button from './components/Button';
 import Modal from './components/Modal';
 import Toast from './components/Toast';
+import ThemeToggle from './components/ThemeToggle';
 
 export default function Landing() {
   const { isConnected } = useAccount();
@@ -24,7 +25,8 @@ export default function Landing() {
       {/* Header */}
       <header className="p-6 flex justify-between items-center">
         <h1 className="text-2xl font-bold text-mantle-blue">RealYield</h1>
-        <div className="space-x-4">
+        <div className="flex items-center space-x-4">
+          <ThemeToggle />
           <Link href="/dashboard">
             <Button variant="ghost">Dashboard</Button>
           </Link>
@@ -90,20 +92,38 @@ export default function Landing() {
       {/* Vault Explorer Preview */}
       <section className="py-20 px-6 bg-panel">
         <h2 className="text-h2 font-semibold text-center mb-12">Top Vaults</h2>
+        <div className="mb-8 flex flex-wrap justify-center gap-4">
+          <select className="p-2 bg-bg-dark border rounded">
+            <option>APY: High to Low</option>
+            <option>APY: Low to High</option>
+          </select>
+          <select className="p-2 bg-bg-dark border rounded">
+            <option>Risk: All</option>
+            <option>Risk: Low</option>
+            <option>Risk: Medium</option>
+            <option>Risk: High</option>
+          </select>
+          <select className="p-2 bg-bg-dark border rounded">
+            <option>Asset Type: All</option>
+            <option>Real Estate</option>
+            <option>Bonds</option>
+            <option>Invoices</option>
+          </select>
+        </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
-          <div className="bg-bg-dark p-6 rounded-lg">
+          <div className="bg-bg-dark p-6 rounded-lg cardLift">
             <h3 className="text-lg font-semibold mb-2">Real Estate Vault</h3>
-            <p className="text-muted">TVL: $1,000,000 | APY: 8.5%</p>
+            <p className="text-muted">TVL: $1,000,000 | APY: 8.5% | Risk: Medium</p>
             <Button className="mt-4">Deposit</Button>
           </div>
-          <div className="bg-bg-dark p-6 rounded-lg">
+          <div className="bg-bg-dark p-6 rounded-lg cardLift">
             <h3 className="text-lg font-semibold mb-2">Bond Vault</h3>
-            <p className="text-muted">TVL: $500,000 | APY: 5.2%</p>
+            <p className="text-muted">TVL: $500,000 | APY: 5.2% | Risk: Low</p>
             <Button className="mt-4">Deposit</Button>
           </div>
-          <div className="bg-bg-dark p-6 rounded-lg">
+          <div className="bg-bg-dark p-6 rounded-lg cardLift">
             <h3 className="text-lg font-semibold mb-2">Invoice Vault</h3>
-            <p className="text-muted">TVL: $300,000 | APY: 6.8%</p>
+            <p className="text-muted">TVL: $300,000 | APY: 6.8% | Risk: Medium</p>
             <Button className="mt-4">Deposit</Button>
           </div>
         </div>
