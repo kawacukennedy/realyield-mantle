@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://realyield.vercel.app/sitemap.xml

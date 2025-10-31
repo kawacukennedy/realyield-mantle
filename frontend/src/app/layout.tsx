@@ -17,8 +17,55 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "RealYield",
-  description: "Compliant On-Chain Yield Vaults for Real-World Assets on Mantle",
+  title: "RealYield - Compliant On-Chain Yield Vaults",
+  description: "Tokenize real-world cash flows, pool into KYC-gated yield vaults, distribute audited yield on Mantle. Secure, compliant, and privacy-focused.",
+  keywords: "DeFi, RWA, Yield Vaults, Mantle, Blockchain, KYC, Compliance",
+  authors: [{ name: "RealYield Team" }],
+  creator: "RealYield",
+  publisher: "RealYield",
+  formatDetection: {
+    email: false,
+    address: false,
+    telephone: false,
+  },
+  metadataBase: new URL('https://realyield.vercel.app'),
+  alternates: {
+    canonical: '/',
+  },
+  openGraph: {
+    title: "RealYield - Compliant On-Chain Yield Vaults",
+    description: "Tokenize real-world cash flows, pool into KYC-gated yield vaults, distribute audited yield on Mantle.",
+    url: 'https://realyield.vercel.app',
+    siteName: 'RealYield',
+    images: [
+      {
+        url: '/og-image.png',
+        width: 1200,
+        height: 630,
+        alt: 'RealYield - Compliant On-Chain Yield Vaults',
+      },
+    ],
+    locale: 'en_US',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: "RealYield - Compliant On-Chain Yield Vaults",
+    description: "Tokenize real-world cash flows, pool into KYC-gated yield vaults, distribute audited yield on Mantle.",
+    images: ['/og-image.png'],
+    creator: '@realyield',
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
+  },
   manifest: "/manifest.json",
 };
 
