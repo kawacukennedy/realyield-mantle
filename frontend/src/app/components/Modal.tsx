@@ -19,7 +19,7 @@ export default function Modal({ isOpen, onClose, title, children }: ModalProps) 
         initial={{ scale: 0.8, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         exit={{ scale: 0.8, opacity: 0 }}
-        className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg max-w-md w-full mx-4"
+        className="bg-panel p-6 rounded-lg shadow-lg max-w-md w-full mx-4"
       >
         <div className="flex justify-between items-center mb-4">
           <h3 className="text-lg font-semibold">{title}</h3>

@@ -1,161 +1,187 @@
 'use client';
 
 import { useState } from 'react';
-import { useAccount, useConnect, useDisconnect } from 'wagmi';
+import { useAccount, useConnect } from 'wagmi';
 import { metaMask, walletConnect } from 'wagmi/connectors';
-import toast, { Toaster } from 'react-hot-toast';
 import { motion } from 'framer-motion';
-import { Shield, Upload, Coins, Vault, BarChart3, HelpCircle } from 'lucide-react';
-import { Tooltip } from 'react-tooltip';
-import dynamic from 'next/dynamic';
+import Link from 'next/link';
+import Button from './components/Button';
+import Modal from './components/Modal';
+import Toast from './components/Toast';
 
-// Dynamically import components that use wagmi to avoid SSR issues
-const KYCSection = dynamic(() => import('./components/KYCSection'), { ssr: false });
-const AssetUpload = dynamic(() => import('./components/AssetUpload'), { ssr: false });
-const MintToken = dynamic(() => import('./components/MintToken'), { ssr: false });
-const VaultActions = dynamic(() => import('./components/VaultActions'), { ssr: false });
-const Dashboard = dynamic(() => import('./components/Dashboard'), { ssr: false });
-const Referrals = dynamic(() => import('./components/Referrals'), { ssr: false });
-
-const ThemeToggle = dynamic(() => import('./components/ThemeToggle'), { ssr: false });
-const Modal = dynamic(() => import('./components/Modal'), { ssr: false });
-const Footer = dynamic(() => import('./components/Footer'), { ssr: false });
-
-export default function Home() {
-  const { address, isConnected } = useAccount();
+export default function Landing() {
+  const { isConnected } = useAccount();
   const { connect } = useConnect();
-  const { disconnect } = useDisconnect();
-  const [kycStatus, setKycStatus] = useState(false);
-  const [activeTab, setActiveTab] = useState('kyc');
-  const [showTutorial, setShowTutorial] = useState(() => {
-    if (typeof window !== 'undefined') {
-      return !localStorage.getItem('tutorialShown');
-    }
-    return false;
-  });
+  const [showWalletModal, setShowWalletModal] = useState(false);
 
   const handleConnect = (connector: any) => {
     connect({ connector });
+    setShowWalletModal(false);
   };
 
-  if (!isConnected) {
-    return (
-      <div className="min-h-screen bg-gray-100 p-8">
-        <h1 className="text-4xl font-bold text-center mb-8">RealYield</h1>
-        <div className="max-w-md mx-auto bg-white p-6 rounded-lg shadow-md">
-          <h2 className="text-2xl mb-4">Connect Wallet</h2>
-          <button
-            onClick={() => handleConnect(metaMask())}
-            className="w-full bg-orange-500 text-white py-2 px-4 rounded mb-2"
-          >
-            Connect MetaMask
-          </button>
-          <button
-            onClick={() => handleConnect(walletConnect({ projectId: 'your-project-id' }))}
-            className="w-full bg-blue-500 text-white py-2 px-4 rounded"
-          >
-            Connect WalletConnect
-          </button>
-        </div>
-        <Toaster />
-      </div>
-    );
-  }
-
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 p-8">
-      <div className="flex justify-between items-center mb-8">
-        <div className="flex items-center">
-          <h1 className="text-4xl font-bold text-gray-800 dark:text-white mr-4">RealYield</h1>
-          <HelpCircle
-            data-tooltip-id="help-tooltip"
-            data-tooltip-content="RealYield is a platform for tokenizing real-world assets into yield-bearing vaults on Mantle blockchain."
-            className="cursor-pointer"
-            size={24}
-          />
+    <div className="min-h-screen bg-bg-dark text-text">
+      {/* Header */}
+      <header className="p-6 flex justify-between items-center">
+        <h1 className="text-2xl font-bold text-mantle-blue">RealYield</h1>
+        <div className="space-x-4">
+          <Link href="/dashboard">
+            <Button variant="ghost">Dashboard</Button>
+          </Link>
+          <Button onClick={() => setShowWalletModal(true)}>
+            {isConnected ? 'Connected' : 'Connect Wallet'}
+          </Button>
         </div>
-        <ThemeToggle />
-      </div>
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        className="max-w-6xl mx-auto bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg"
-      >
-        <div className="flex justify-between items-center mb-6">
-          <p>Connected: {address}</p>
-          <button
-            onClick={() => disconnect()}
-            className="bg-red-500 text-white py-2 px-4 rounded"
+      </header>
+
+      {/* Hero */}
+      <section className="text-center py-20 px-6">
+        <motion.h1
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="text-h1 font-semibold mb-4"
+        >
+          Compliant On-Chain Yield Vaults for Real-World Assets
+        </motion.h1>
+        <p className="text-body mb-8 max-w-2xl mx-auto">
+          Tokenize real-world cash flows, pool into KYC-gated yield vaults, distribute audited yield on Mantle.
+        </p>
+        <Button size="lg" onClick={() => setShowWalletModal(true)}>
+          Connect Wallet
+        </Button>
+      </section>
+
+      {/* How it works */}
+      <section className="py-20 px-6">
+        <h2 className="text-h2 font-semibold text-center mb-12">How it Works</h2>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            className="bg-panel p-6 rounded-lg text-center"
           >
-            Disconnect
-          </button>
+            <div className="w-16 h-16 bg-mantle-blue rounded-full mx-auto mb-4 flex items-center justify-center text-white text-2xl font-bold">1</div>
+            <h3 className="text-lg font-semibold mb-2">Tokenize Assets</h3>
+            <p className="text-muted">Upload and tokenize real-world assets with custody settlement.</p>
+          </motion.div>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            className="bg-panel p-6 rounded-lg text-center"
+          >
+            <div className="w-16 h-16 bg-mantle-green rounded-full mx-auto mb-4 flex items-center justify-center text-white text-2xl font-bold">2</div>
+            <h3 className="text-lg font-semibold mb-2">Pool in Vaults</h3>
+            <p className="text-muted">Deposit assets into KYC-gated yield vaults for passive income.</p>
+          </motion.div>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+            className="bg-panel p-6 rounded-lg text-center"
+          >
+            <div className="w-16 h-16 bg-mantle-green rounded-full mx-auto mb-4 flex items-center justify-center text-white text-2xl font-bold">3</div>
+            <h3 className="text-lg font-semibold mb-2">Earn Yield</h3>
+            <p className="text-muted">Receive audited yield distributions automatically.</p>
+          </motion.div>
         </div>
-        <div className="flex space-x-4 mb-6 overflow-x-auto">
-          <button
-            onClick={() => setActiveTab('kyc')}
-            className={`flex items-center py-2 px-4 rounded ${activeTab === 'kyc' ? 'bg-blue-500 text-white' : 'bg-gray-200 dark:bg-gray-700 dark:text-white'}`}
-          >
-            <Shield className="mr-2" size={16} />
-            KYC
-          </button>
-          <button
-            onClick={() => setActiveTab('upload')}
-            className={`flex items-center py-2 px-4 rounded ${activeTab === 'upload' ? 'bg-blue-500 text-white' : 'bg-gray-200 dark:bg-gray-700 dark:text-white'}`}
-          >
-            <Upload className="mr-2" size={16} />
-            Upload Asset
-          </button>
-          <button
-            onClick={() => setActiveTab('mint')}
-            className={`flex items-center py-2 px-4 rounded ${activeTab === 'mint' ? 'bg-blue-500 text-white' : 'bg-gray-200 dark:bg-gray-700 dark:text-white'}`}
-          >
-            <Coins className="mr-2" size={16} />
-            Mint Token
-          </button>
-          <button
-            onClick={() => setActiveTab('vault')}
-            className={`flex items-center py-2 px-4 rounded ${activeTab === 'vault' ? 'bg-blue-500 text-white' : 'bg-gray-200 dark:bg-gray-700 dark:text-white'}`}
-          >
-            <Vault className="mr-2" size={16} />
-            Vault Actions
-          </button>
-          <button
-            onClick={() => setActiveTab('dashboard')}
-            className={`flex items-center py-2 px-4 rounded ${activeTab === 'dashboard' ? 'bg-blue-500 text-white' : 'bg-gray-200 dark:bg-gray-700 dark:text-white'}`}
-          >
-            <BarChart3 className="mr-2" size={16} />
-            Dashboard
-          </button>
-          <button
-            onClick={() => setActiveTab('referrals')}
-            className={`flex items-center py-2 px-4 rounded ${activeTab === 'referrals' ? 'bg-blue-500 text-white' : 'bg-gray-200 dark:bg-gray-700 dark:text-white'}`}
-          >
-            Referrals
-          </button>
+      </section>
+
+      {/* Vault Explorer Preview */}
+      <section className="py-20 px-6 bg-panel">
+        <h2 className="text-h2 font-semibold text-center mb-12">Top Vaults</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
+          <div className="bg-bg-dark p-6 rounded-lg">
+            <h3 className="text-lg font-semibold mb-2">Real Estate Vault</h3>
+            <p className="text-muted">TVL: $1,000,000 | APY: 8.5%</p>
+            <Button className="mt-4">Deposit</Button>
+          </div>
+          <div className="bg-bg-dark p-6 rounded-lg">
+            <h3 className="text-lg font-semibold mb-2">Bond Vault</h3>
+            <p className="text-muted">TVL: $500,000 | APY: 5.2%</p>
+            <Button className="mt-4">Deposit</Button>
+          </div>
+          <div className="bg-bg-dark p-6 rounded-lg">
+            <h3 className="text-lg font-semibold mb-2">Invoice Vault</h3>
+            <p className="text-muted">TVL: $300,000 | APY: 6.8%</p>
+            <Button className="mt-4">Deposit</Button>
+          </div>
         </div>
-        {activeTab === 'kyc' && <KYCSection kycStatus={kycStatus} setKycStatus={setKycStatus} />}
-        {activeTab === 'upload' && <AssetUpload />}
-        {activeTab === 'mint' && <MintToken />}
-        {activeTab === 'vault' && <VaultActions />}
-        {activeTab === 'dashboard' && <Dashboard />}
-        {activeTab === 'referrals' && <Referrals />}
-      </motion.div>
-      <Toaster />
-      <Tooltip id="help-tooltip" />
-      <Modal isOpen={showTutorial} onClose={() => { setShowTutorial(false); localStorage.setItem('tutorialShown', 'true'); }} title="Welcome to RealYield">
-        <div className="text-center">
-          <p className="mb-4">Welcome! RealYield helps you tokenize real-world assets into yield-bearing vaults.</p>
-          <p className="mb-4">Start by connecting your wallet and completing KYC.</p>
-          <button
-            onClick={() => { setShowTutorial(false); localStorage.setItem('tutorialShown', 'true'); }}
-            className="px-4 py-2 bg-blue-500 text-white rounded"
-          >
-            Get Started
-          </button>
+      </section>
+
+      {/* Security & Compliance */}
+      <section className="py-20 px-6 text-center">
+        <h2 className="text-h2 font-semibold mb-12">Security & Compliance</h2>
+        <div className="flex justify-center space-x-8">
+          <div className="text-center">
+            <div className="w-16 h-16 bg-success rounded-full mx-auto mb-4 flex items-center justify-center">✓</div>
+            <p>KYC Required</p>
+          </div>
+          <div className="text-center">
+            <div className="w-16 h-16 bg-primary rounded-full mx-auto mb-4 flex items-center justify-center">🔒</div>
+            <p>ZK Privacy</p>
+          </div>
+          <div className="text-center">
+            <div className="w-16 h-16 bg-mantle-blue rounded-full mx-auto mb-4 flex items-center justify-center">🏦</div>
+            <p>Custodial Settlement</p>
+          </div>
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer className="py-12 px-6 bg-panel text-center">
+        <div className="max-w-6xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
+            <div>
+              <h3 className="font-semibold mb-4">Product</h3>
+              <ul className="space-y-2 text-muted">
+                <li><Link href="/dashboard">Dashboard</Link></li>
+                <li><Link href="/create-asset">Create Asset</Link></li>
+                <li><Link href="/vault">Vaults</Link></li>
+              </ul>
+            </div>
+            <div>
+              <h3 className="font-semibold mb-4">Company</h3>
+              <ul className="space-y-2 text-muted">
+                <li><a href="#">About</a></li>
+                <li><a href="#">Blog</a></li>
+                <li><a href="#">Careers</a></li>
+              </ul>
+            </div>
+            <div>
+              <h3 className="font-semibold mb-4">Resources</h3>
+              <ul className="space-y-2 text-muted">
+                <li><a href="#">Docs</a></li>
+                <li><a href="#">API</a></li>
+                <li><a href="#">Support</a></li>
+              </ul>
+            </div>
+            <div>
+              <h3 className="font-semibold mb-4">Legal</h3>
+              <ul className="space-y-2 text-muted">
+                <li><a href="#">Privacy</a></li>
+                <li><a href="#">Terms</a></li>
+                <li><a href="#">Compliance</a></li>
+              </ul>
+            </div>
+          </div>
+          <p className="text-muted">© 2024 RealYield. All rights reserved.</p>
+        </div>
+      </footer>
+
+      {/* Wallet Modal */}
+      <Modal isOpen={showWalletModal} onClose={() => setShowWalletModal(false)} title="Connect Wallet">
+        <div className="space-y-4">
+          <Button onClick={() => handleConnect(metaMask())} className="w-full">
+            MetaMask
+          </Button>
+          <Button onClick={() => handleConnect(walletConnect({ projectId: 'your-project-id' }))} variant="secondary" className="w-full">
+            WalletConnect
+          </Button>
         </div>
       </Modal>
-      <Footer />
+
+      <Toast />
     </div>
   );
 }

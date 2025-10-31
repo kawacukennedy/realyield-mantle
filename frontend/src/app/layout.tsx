@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { WagmiProvider } from './WagmiProvider';
 import ErrorBoundary from './components/ErrorBoundary';
+import Toast from './components/Toast';
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -33,6 +34,7 @@ export default function RootLayout({
         <ErrorBoundary>
           <WagmiProvider>
             {children}
+            <Toast />
           </WagmiProvider>
         </ErrorBoundary>
       </body>
