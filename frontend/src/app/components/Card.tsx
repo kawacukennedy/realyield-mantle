@@ -3,6 +3,8 @@ import React from 'react';
 interface CardProps {
   children: React.ReactNode;
   className?: string;
+  glass?: boolean;
+  animated?: boolean;
 }
 
 interface CardHeaderProps {
@@ -20,9 +22,13 @@ interface CardContentProps {
   className?: string;
 }
 
-export function Card({ children, className = '' }: CardProps) {
+export function Card({ children, className = '', glass = false, animated = true }: CardProps) {
+  const cardClasses = glass
+    ? `glass-effect rounded-xl shadow-lg border border-white/20 backdrop-blur-md ${animated ? 'hover:shadow-xl hover:scale-[1.02] transition-all duration-300' : ''} ${className}`
+    : `bg-bg-card rounded-xl shadow-md border border-border ${animated ? 'hover:shadow-xl hover:border-primary/20 hover:scale-[1.02] transition-all duration-300' : ''} ${className}`;
+
   return (
-    <div className={`bg-bg-card rounded-xl shadow-md border border-border hover:shadow-lg transition-shadow duration-300 ${className}`}>
+    <div className={cardClasses}>
       {children}
     </div>
   );

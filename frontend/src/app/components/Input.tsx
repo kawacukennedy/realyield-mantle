@@ -27,7 +27,7 @@ export default function Input({
       onChange={onChange}
       disabled={disabled}
       accept={accept}
-      className={`w-full px-3 py-2 bg-panel border border-muted rounded-md text-text placeholder-muted focus:outline-none focus:ring-2 focus:ring-primary ${disabled ? 'opacity-50 cursor-not-allowed' : ''} ${className}`}
+      className={`w-full px-3 py-2 bg-bg-card border border-border rounded-lg text-text placeholder-text-muted focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-colors ${disabled ? 'opacity-50 cursor-not-allowed' : ''} ${className}`}
     />
   );
 }

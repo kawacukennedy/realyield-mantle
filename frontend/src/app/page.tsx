@@ -5,6 +5,7 @@ import { useAccount, useConnect } from 'wagmi';
 import { metaMask, walletConnect } from 'wagmi/connectors';
 import { motion } from 'framer-motion';
 import { Card, CardContent, CardHeader, CardTitle } from './components/Card';
+import { Upload, Vault, TrendingUp, Shield, Eye, Banknote } from 'lucide-react';
 import Link from 'next/link';
 import Button from './components/Button';
 import Modal from './components/Modal';
@@ -24,7 +25,7 @@ export default function Landing() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-bg-dark via-bg-dark to-bg-muted text-text">
       {/* Header */}
-      <header className="p-6 flex justify-between items-center backdrop-blur-sm bg-bg-dark/80 border-b border-border">
+      <header className="p-6 flex justify-between items-center glass-effect border-b border-white/10">
         <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
           RealYield
         </h1>
@@ -41,7 +42,11 @@ export default function Landing() {
 
       {/* Hero */}
       <section className="text-center py-24 px-6 relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-r from-primary/5 to-accent/5"></div>
+        <div className="absolute inset-0 gradient-shift bg-gradient-to-r from-primary/5 via-accent/5 to-secondary/5"></div>
+        {/* Floating Elements */}
+        <div className="absolute top-20 left-10 w-20 h-20 bg-primary/10 rounded-full morph"></div>
+        <div className="absolute top-40 right-20 w-16 h-16 bg-accent/10 rounded-full morph" style={{ animationDelay: '2s' }}></div>
+        <div className="absolute bottom-20 left-1/4 w-12 h-12 bg-secondary/10 rounded-full morph" style={{ animationDelay: '4s' }}></div>
         <motion.h1
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
@@ -63,7 +68,7 @@ export default function Landing() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.4 }}
         >
-          <Button size="lg" onClick={() => setShowWalletModal(true)} className="bg-gradient-to-r from-primary to-accent hover:shadow-xl hover:shadow-primary/25">
+          <Button size="lg" onClick={() => setShowWalletModal(true)} className="bg-gradient-to-r from-primary to-accent hover:shadow-xl hover:shadow-primary/25 heartbeat">
             Connect Wallet
           </Button>
         </motion.div>
@@ -87,8 +92,8 @@ export default function Landing() {
           >
             <Card className="text-center h-full hover:border-primary/50 transition-all duration-300">
               <CardContent className="pt-8">
-                <div className="w-20 h-20 bg-gradient-to-r from-primary to-accent rounded-full mx-auto mb-6 flex items-center justify-center text-white text-3xl font-bold shadow-lg group-hover:scale-110 transition-transform duration-300">
-                  1
+                <div className="w-20 h-20 bg-gradient-to-r from-primary to-accent rounded-full mx-auto mb-6 flex items-center justify-center text-white shadow-lg group-hover:scale-110 transition-transform duration-300">
+                  <Upload size={32} />
                 </div>
                 <h3 className="text-xl font-bold mb-4 text-text">Tokenize Assets</h3>
                 <p className="text-text-muted leading-relaxed">Upload and tokenize real-world assets with custody settlement.</p>
@@ -103,8 +108,8 @@ export default function Landing() {
           >
             <Card className="text-center h-full hover:border-secondary/50 transition-all duration-300">
               <CardContent className="pt-8">
-                <div className="w-20 h-20 bg-gradient-to-r from-secondary to-primary rounded-full mx-auto mb-6 flex items-center justify-center text-white text-3xl font-bold shadow-lg group-hover:scale-110 transition-transform duration-300">
-                  2
+                <div className="w-20 h-20 bg-gradient-to-r from-secondary to-primary rounded-full mx-auto mb-6 flex items-center justify-center text-white shadow-lg group-hover:scale-110 transition-transform duration-300">
+                  <Vault size={32} />
                 </div>
                 <h3 className="text-xl font-bold mb-4 text-text">Pool in Vaults</h3>
                 <p className="text-text-muted leading-relaxed">Deposit assets into KYC-gated yield vaults for passive income.</p>
@@ -119,8 +124,8 @@ export default function Landing() {
           >
             <Card className="text-center h-full hover:border-accent/50 transition-all duration-300">
               <CardContent className="pt-8">
-                <div className="w-20 h-20 bg-gradient-to-r from-accent to-secondary rounded-full mx-auto mb-6 flex items-center justify-center text-white text-3xl font-bold shadow-lg group-hover:scale-110 transition-transform duration-300">
-                  3
+                <div className="w-20 h-20 bg-gradient-to-r from-accent to-secondary rounded-full mx-auto mb-6 flex items-center justify-center text-white shadow-lg group-hover:scale-110 transition-transform duration-300">
+                  <TrendingUp size={32} />
                 </div>
                 <h3 className="text-xl font-bold mb-4 text-text">Earn Yield</h3>
                 <p className="text-text-muted leading-relaxed">Receive audited yield distributions automatically.</p>
@@ -291,8 +296,8 @@ export default function Landing() {
           >
             <Card className="h-full hover:border-success/50 transition-all duration-300">
               <CardContent className="pt-8">
-                <div className="w-20 h-20 bg-gradient-to-r from-success to-success/80 rounded-full mx-auto mb-6 flex items-center justify-center text-white text-3xl shadow-lg group-hover:scale-110 transition-transform duration-300">
-                  ✓
+                <div className="w-20 h-20 bg-gradient-to-r from-success to-success/80 rounded-full mx-auto mb-6 flex items-center justify-center text-white shadow-lg group-hover:scale-110 transition-transform duration-300">
+                  <Shield size={32} />
                 </div>
                 <h3 className="text-xl font-bold mb-4 text-text">KYC Required</h3>
                 <p className="text-text-muted leading-relaxed">All participants undergo thorough identity verification for regulatory compliance.</p>
@@ -307,8 +312,8 @@ export default function Landing() {
           >
             <Card className="h-full hover:border-primary/50 transition-all duration-300">
               <CardContent className="pt-8">
-                <div className="w-20 h-20 bg-gradient-to-r from-primary to-accent rounded-full mx-auto mb-6 flex items-center justify-center text-white text-3xl shadow-lg group-hover:scale-110 transition-transform duration-300">
-                  🔒
+                <div className="w-20 h-20 bg-gradient-to-r from-primary to-accent rounded-full mx-auto mb-6 flex items-center justify-center text-white shadow-lg group-hover:scale-110 transition-transform duration-300">
+                  <Eye size={32} />
                 </div>
                 <h3 className="text-xl font-bold mb-4 text-text">ZK Privacy</h3>
                 <p className="text-text-muted leading-relaxed">Zero-knowledge proofs ensure privacy while maintaining compliance and security.</p>
@@ -323,8 +328,8 @@ export default function Landing() {
           >
             <Card className="h-full hover:border-secondary/50 transition-all duration-300">
               <CardContent className="pt-8">
-                <div className="w-20 h-20 bg-gradient-to-r from-secondary to-primary rounded-full mx-auto mb-6 flex items-center justify-center text-white text-3xl shadow-lg group-hover:scale-110 transition-transform duration-300">
-                  🏦
+                <div className="w-20 h-20 bg-gradient-to-r from-secondary to-primary rounded-full mx-auto mb-6 flex items-center justify-center text-white shadow-lg group-hover:scale-110 transition-transform duration-300">
+                  <Banknote size={32} />
                 </div>
                 <h3 className="text-xl font-bold mb-4 text-text">Custodial Settlement</h3>
                 <p className="text-text-muted leading-relaxed">Professional custodians handle asset settlement with institutional-grade security.</p>

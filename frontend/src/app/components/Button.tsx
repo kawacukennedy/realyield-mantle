@@ -1,4 +1,5 @@
 import React from 'react';
+import { motion } from 'framer-motion';
 
 interface ButtonProps {
   children: React.ReactNode;
@@ -7,6 +8,7 @@ interface ButtonProps {
   disabled?: boolean;
   onClick?: () => void;
   className?: string;
+  type?: 'button' | 'submit' | 'reset';
 }
 
 export default function Button({
@@ -16,6 +18,7 @@ export default function Button({
   disabled = false,
   onClick,
   className = '',
+  type = 'button',
 }: ButtonProps) {
   const baseClasses = 'rounded-lg font-semibold transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-bg-dark disabled:opacity-50 disabled:cursor-not-allowed';
   const sizeClasses = {
@@ -31,12 +34,16 @@ export default function Button({
   };
 
   return (
-    <button
-      className={`${baseClasses} ${sizeClasses[size]} ${variantClasses[variant]} ${className}`}
+    <motion.button
+      type={type}
+      className={`ripple-effect ${baseClasses} ${sizeClasses[size]} ${variantClasses[variant]} ${className}`}
       disabled={disabled}
       onClick={onClick}
+      whileHover={!disabled ? { scale: 1.02, y: -1 } : {}}
+      whileTap={!disabled ? { scale: 0.98 } : {}}
+      transition={{ duration: 0.2 }}
     >
       {children}
-    </button>
+    </motion.button>
   );
 }
