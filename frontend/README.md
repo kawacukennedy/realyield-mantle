@@ -1,36 +1,56 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# RealYield Frontend
+
+A Next.js frontend for RealYield: Compliant On-Chain Yield Vaults for Real-World Assets on Mantle.
+
+## Features
+
+- Landing page with hero, how it works, vault explorer
+- Dashboard with portfolio summary, vaults, activity timeline
+- Create Asset Wizard (5-step process)
+- Vault page with deposit/withdraw flows
+- KYC onboarding flow
+- Admin panel for compliance management
+- ZK proof generation UX
+- Mantle-themed design system
 
 ## Getting Started
 
-First, run the development server:
-
+1. Install dependencies:
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+2. Copy environment variables:
+```bash
+cp .env.example .env.local
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+3. Fill in your environment variables (RPC URLs, WalletConnect project ID, backend URL)
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+4. Run the development server:
+```bash
+npm run dev
+```
 
-## Learn More
+Open [http://localhost:3000](http://localhost:3000) with your browser.
 
-To learn more about Next.js, take a look at the following resources:
+## Environment Variables
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- `NEXT_PUBLIC_MANTLE_RPC`: Mantle mainnet RPC URL
+- `NEXT_PUBLIC_MANTLE_TESTNET_RPC`: Mantle testnet RPC URL
+- `NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID`: WalletConnect project ID
+- `NEXT_PUBLIC_BACKEND_URL`: Backend API URL
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Build
+
+```bash
+npm run build
+```
 
 ## Deploy on Vercel
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+1. Connect your GitHub repo to Vercel
+2. Add environment variables in Vercel dashboard
+3. Deploy
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+The `vercel.json` is configured for Next.js deployment.

@@ -10,11 +10,11 @@ const config = createConfig({
   chains: [mantle, mantleTestnet],
   connectors: [
     metaMask(),
-    walletConnect({ projectId: 'your-project-id' }),
+    walletConnect({ projectId: process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID || 'your-project-id' }),
   ],
   transports: {
-    [mantle.id]: http(),
-    [mantleTestnet.id]: http(),
+    [mantle.id]: http(process.env.NEXT_PUBLIC_MANTLE_RPC || 'https://rpc.mantle.xyz'),
+    [mantleTestnet.id]: http(process.env.NEXT_PUBLIC_MANTLE_TESTNET_RPC || 'https://rpc.testnet.mantle.xyz'),
   },
 });
 

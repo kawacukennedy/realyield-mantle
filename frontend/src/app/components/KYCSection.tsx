@@ -30,7 +30,7 @@ export default function KYCOnboardingFlow() {
   const handleAttestation = async () => {
     setLoading(true);
     try {
-      const response = await axios.post('http://localhost:3001/kyc/submit', {
+      const response = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/kyc/submit`, {
         walletPubKey: address,
         piiEncrypted: 'mock-encrypted-pii',
       });
