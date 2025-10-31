@@ -58,7 +58,7 @@ export default function Landing() {
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
-            className="bg-panel p-6 rounded-lg text-center"
+            className="bg-panel p-6 rounded-lg text-center cardLift"
           >
             <div className="w-16 h-16 bg-mantle-blue rounded-full mx-auto mb-4 flex items-center justify-center text-white text-2xl font-bold">1</div>
             <h3 className="text-lg font-semibold mb-2">Tokenize Assets</h3>

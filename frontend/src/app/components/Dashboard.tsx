@@ -45,23 +45,31 @@ export default function Dashboard() {
   useEffect(() => {
     if (!isConnected) return;
 
-    // Simulate loading
-    setTimeout(() => {
-      setPortfolio({ tvl: 100000, totalYieldEarned: 5000, pendingWithdrawals: 2000 });
-      setVaults([
-        { id: '1', name: 'Real Estate Vault', tvl: 50000, apy: 8.5, risk_score: 3 },
-        { id: '2', name: 'Bond Vault', tvl: 30000, apy: 5.2, risk_score: 2 },
-      ]);
-      setActivities([
-        { id: '1', type: 'deposit', description: 'Deposited 1000 USDC', timestamp: '2023-10-01' },
-        { id: '2', type: 'yield', description: 'Yield claimed: 50 USDC', timestamp: '2023-10-02' },
-      ]);
-      setChartData([
-        { timestamp: '2023-09-01', vault: 'Real Estate', apy: 8.5, fiatValue: 1000 },
-        { timestamp: '2023-09-02', vault: 'Real Estate', apy: 8.5, fiatValue: 1050 },
-      ]);
-      setLoading(false);
-    }, 2000);
+    // Fetch from backend
+    const fetchData = async () => {
+      try {
+        const vaultsRes = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/vaults`);
+        const vaultsData = await vaultsRes.json();
+        setVaults(vaultsData.vaults);
+
+        // Mock other data for now
+        setPortfolio({ tvl: 100000, totalYieldEarned: 5000, pendingWithdrawals: 2000 });
+        setActivities([
+          { id: '1', type: 'deposit', description: 'Deposited 1000 USDC', timestamp: '2023-10-01' },
+          { id: '2', type: 'yield', description: 'Yield claimed: 50 USDC', timestamp: '2023-10-02' },
+        ]);
+        setChartData([
+          { timestamp: '2023-09-01', vault: 'Real Estate', apy: 8.5, fiatValue: 1000 },
+          { timestamp: '2023-09-02', vault: 'Real Estate', apy: 8.5, fiatValue: 1050 },
+        ]);
+      } catch (error) {
+        console.error(error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
   }, [isConnected]);
 
   if (!isConnected) {

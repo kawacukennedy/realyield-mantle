@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useAccount } from 'wagmi';
 import { useWriteContract } from 'wagmi';
+import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import Modal from './Modal';
 
 // Mock contracts
@@ -69,14 +70,42 @@ export default function VaultPage() {
 
         <div className="bg-panel p-4 rounded-lg">
           <h3 className="text-lg mb-4">Holdings</h3>
-          <p>Assets backing vault</p>
-          {/* Table of assets */}
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b border-muted">
+                <th className="text-left py-2">Asset ID</th>
+                <th className="text-left py-2">Valuation</th>
+                <th className="text-left py-2">Status</th>
+                <th className="text-left py-2">CID</th>
+              </tr>
+            </thead>
+            <tbody>
+              {/* Mock data */}
+              <tr className="border-b border-muted">
+                <td className="py-2">0</td>
+                <td className="py-2">$1,000,000</td>
+                <td className="py-2">Deposited</td>
+                <td className="py-2"><a href="#" className="text-primary">QmMockCID...</a></td>
+              </tr>
+            </tbody>
+          </table>
         </div>
       </div>
 
       <div className="bg-panel p-4 rounded-lg mb-6">
         <h3 className="text-lg mb-4">Yield Schedule & History</h3>
-        {/* Charts */}
+        <ResponsiveContainer width="100%" height={200}>
+          <AreaChart data={[
+            { date: '2023-09-01', yield: 100 },
+            { date: '2023-09-02', yield: 150 },
+          ]}>
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis dataKey="date" />
+            <YAxis />
+            <Tooltip />
+            <Area type="monotone" dataKey="yield" stroke="#00FFB2" fill="#00FFB2" />
+          </AreaChart>
+        </ResponsiveContainer>
       </div>
 
       <div className="bg-panel p-4 rounded-lg">

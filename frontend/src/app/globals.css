@@ -30,3 +30,30 @@ body {
   color: var(--text);
   font-family: var(--font-sans);
 }
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes cardLift {
+  from { transform: translateY(0); box-shadow: 0 0 0 rgba(0, 191, 255, 0); }
+  to { transform: translateY(-6px); box-shadow: 0 6px 12px rgba(0, 191, 255, 0.3); }
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.02); }
+}
+
+.fadeIn {
+  animation: fadeIn 0.28s ease;
+}
+
+.cardLift:hover {
+  animation: cardLift 0.28s;
+}
+
+.pulse {
+  animation: pulse 0.6s ease infinite alternate;
+}
