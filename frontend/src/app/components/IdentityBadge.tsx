@@ -1,24 +1,50 @@
 import React from 'react';
-import { CheckCircle, AlertCircle, Clock } from 'lucide-react';
+import { CheckCircle, AlertCircle, Clock, Wallet, Shield, AlertTriangle } from 'lucide-react';
+import { motion } from 'framer-motion';
+import Badge from './Badge';
 
 interface IdentityBadgeProps {
   status: 'verified' | 'pending' | 'expired' | 'revoked';
   type: 'wallet' | 'kyc';
   address?: string;
+  showAddress?: boolean;
+  size?: 'sm' | 'md' | 'lg';
+  animated?: boolean;
 }
 
-export default function IdentityBadge({ status, type, address }: IdentityBadgeProps) {
+export default function IdentityBadge({
+  status,
+  type,
+  address,
+  showAddress = true,
+  size = 'md',
+  animated = false
+}: IdentityBadgeProps) {
   const getIcon = () => {
     switch (status) {
       case 'verified':
-        return <CheckCircle size={16} className="text-success" />;
+        return type === 'kyc' ? Shield : Wallet;
       case 'pending':
-        return <Clock size={16} className="text-muted" />;
+        return Clock;
       case 'expired':
       case 'revoked':
-        return <AlertCircle size={16} className="text-danger" />;
+        return AlertTriangle;
       default:
-        return null;
+        return AlertCircle;
+    }
+  };
+
+  const getVariant = (): 'success' | 'warning' | 'danger' | 'default' => {
+    switch (status) {
+      case 'verified':
+        return 'success';
+      case 'pending':
+        return 'warning';
+      case 'expired':
+      case 'revoked':
+        return 'danger';
+      default:
+        return 'default';
     }
   };
 
@@ -37,11 +63,37 @@ export default function IdentityBadge({ status, type, address }: IdentityBadgePr
     }
   };
 
-  return (
-    <div className="flex items-center space-x-2 px-3 py-1 bg-panel rounded-full text-sm">
-      {getIcon()}
-      <span>{getText()}</span>
-      {address && <span className="text-muted">{address.slice(0, 6)}...{address.slice(-4)}</span>}
+  const IconComponent = getIcon();
+
+  const badgeContent = (
+    <div className="flex items-center gap-2">
+      <IconComponent size={size === 'sm' ? 14 : size === 'md' ? 16 : 18} />
+      <span className="font-medium">{getText()}</span>
+      {address && showAddress && (
+        <span className="text-text-muted font-mono text-xs">
+          {address.slice(0, 6)}...{address.slice(-4)}
+        </span>
+      )}
     </div>
+  );
+
+  if (animated) {
+    return (
+      <motion.div
+        initial={{ scale: 0.8, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        whileHover={{ scale: 1.05 }}
+      >
+        <Badge variant={getVariant()} size={size} animated={animated}>
+          {badgeContent}
+        </Badge>
+      </motion.div>
+    );
+  }
+
+  return (
+    <Badge variant={getVariant()} size={size}>
+      {badgeContent}
+    </Badge>
   );
 }
