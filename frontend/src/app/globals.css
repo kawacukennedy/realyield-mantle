@@ -1,38 +1,53 @@
 @import "tailwindcss";
 
 :root {
-  --mantle-blue: #00BFFF;
-  --mantle-green: #00FFB2;
-  --mantle-purple: #8B5CF6;
+  /* Brand Tokens */
+  --primary: #00BFFF;
+  --accent: #00FFB2;
   --bg-dark: #0E141B;
   --bg-card: #111418;
   --bg-muted: #1A1F2B;
   --text: #E6EEF3;
   --text-muted: #98A2B3;
-  --text-accent: #CBD5E1;
   --border: #334155;
   --border-light: #475569;
   --success: #16A34A;
   --warning: #F59E0B;
   --danger: #EF4444;
-  --primary: var(--mantle-blue);
-  --secondary: var(--mantle-green);
-  --accent: var(--mantle-purple);
-  --spacing-4: 4px;
-  --spacing-8: 8px;
-  --spacing-12: 12px;
-  --spacing-16: 16px;
-  --spacing-24: 24px;
-  --spacing-32: 32px;
-  --spacing-48: 48px;
+
+  /* Typography */
+  --font-h1: 48px/56px semibold;
+  --font-h2: 32px/40px semibold;
+  --font-body: 16px/24px regular;
+  --font-small: 14px/20px regular;
+  --font-mono: 13px/18px monospace;
+
+  /* Spacing */
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 16px;
+  --spacing-lg: 24px;
+  --spacing-xl: 32px;
+
+  /* Radii */
   --radius-sm: 6px;
   --radius-md: 12px;
-  --radius-lg: 24px;
+  --radius-lg: 20px;
+
+  /* Shadows */
+  --shadow-soft: 0 6px 20px rgba(0,0,0,0.6);
   --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
   --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
   --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
-  --gradient-primary: linear-gradient(135deg, var(--mantle-blue), var(--mantle-purple));
-  --gradient-secondary: linear-gradient(135deg, var(--mantle-green), var(--mantle-blue));
+
+  /* Animations */
+  --animation-fadeIn: opacity .28s ease;
+  --animation-cardLift: translateY(-6px) shadow .28s;
+  --animation-pulse: scale(1.02) .6s ease infinite alternate;
+
+  /* Gradients */
+  --gradient-primary: linear-gradient(135deg, #00BFFF, #8B5CF6);
+  --gradient-secondary: linear-gradient(135deg, #00FFB2, #00BFFF);
 }
 
 body {
