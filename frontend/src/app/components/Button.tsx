@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 
 interface ButtonProps {
   children: React.ReactNode;
-  variant?: 'primary' | 'secondary' | 'ghost' | 'outline';
+  variant?: 'primary' | 'secondary' | 'ghost' | 'outline' | 'link';
   size?: 'sm' | 'md' | 'lg';
   disabled?: boolean;
   onClick?: () => void;
@@ -31,6 +31,7 @@ export default function Button({
     secondary: 'bg-gradient-to-r from-secondary to-primary text-white hover:shadow-lg hover:shadow-secondary/25 focus:ring-secondary',
     ghost: 'bg-transparent text-text hover:bg-bg-muted focus:ring-muted',
     outline: 'border border-border text-text hover:bg-bg-muted hover:border-border-light focus:ring-primary',
+    link: 'bg-transparent text-primary hover:text-accent underline-offset-4 hover:underline focus:ring-primary',
   };
 
   return (
