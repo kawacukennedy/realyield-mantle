@@ -23,23 +23,29 @@ async function main() {
   await assetTokenizer.waitForDeployment();
   console.log("AssetTokenizer deployed to:", await assetTokenizer.getAddress());
 
-  // Deploy a mock ERC20 for the vault asset
-  const MockERC20 = await ethers.getContractFactory("ERC20Mock");
-  const asset = await MockERC20.deploy("Mock Asset", "MOCK");
-  await asset.waitForDeployment();
-  console.log("MockERC20 deployed to:", await asset.getAddress());
-
-  // Deploy Vault
-  const Vault = await ethers.getContractFactory("Vault");
-  const vault = await Vault.deploy(asset.getAddress(), assetTokenizer.getAddress(), compliance.getAddress(), zkModule.getAddress());
-  await vault.waitForDeployment();
-  console.log("Vault deployed to:", await vault.getAddress());
+  // Deploy ShareToken
+  const ShareToken = await ethers.getContractFactory("ShareToken");
+  const shareToken = await ShareToken.deploy("Share Token", "SHARE", await compliance.getAddress());
+  await shareToken.waitForDeployment();
+  console.log("ShareToken deployed to:", await shareToken.getAddress());
 
   // Deploy YieldDistributor
   const YieldDistributor = await ethers.getContractFactory("YieldDistributor");
-  const yieldDistributor = await YieldDistributor.deploy(vault.getAddress(), asset.getAddress());
+  const yieldDistributor = await YieldDistributor.deploy(await shareToken.getAddress());
   await yieldDistributor.waitForDeployment();
   console.log("YieldDistributor deployed to:", await yieldDistributor.getAddress());
+
+  // Deploy VaultContract
+  const VaultContract = await ethers.getContractFactory("VaultContract");
+  const vaultContract = await VaultContract.deploy(
+    await assetTokenizer.getAddress(),
+    await shareToken.getAddress(),
+    await compliance.getAddress(),
+    await yieldDistributor.getAddress(),
+    await zkModule.getAddress()
+  );
+  await vaultContract.waitForDeployment();
+  console.log("VaultContract deployed to:", await vaultContract.getAddress());
 }
 
 main()
