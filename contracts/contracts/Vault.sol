@@ -1,67 +1,112 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.19;
 
+import "@openzeppelin/contracts/token/ERC20/extensions/ERC4626.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "./AssetTokenizer.sol";
 import "./ComplianceModule.sol";
 import "./ZKModule.sol";
 import "./YieldDistributor.sol";
-import "./ShareToken.sol";
 
-contract VaultContract is Ownable {
+contract Vault is ERC4626, Ownable {
     AssetTokenizer public assetTokenizer;
-    ShareToken public shareToken;
     ComplianceModule public compliance;
     YieldDistributor public yieldDistributor;
     ZKModule public zkModule;
 
     mapping(uint256 => bool) public depositedAssets;
     mapping(address => uint256) public pendingWithdrawals;
+    mapping(address => uint256) public lastYieldClaim;
 
-    event Deposit(address indexed depositor, uint256 assetId);
+    uint256 public totalValueLocked;
+    uint256 public lastYieldDistribution;
+
+    string public vaultStrategy; // "invoice", "real-estate", "bond"
+    uint8 public riskScore; // 1-10 scale
+    string public custodian; // Custodian name/address
+
+    event Deposit(address indexed depositor, uint256 assets, uint256 shares);
     event WithdrawRequest(address indexed user, uint256 shares);
-    event WithdrawFulfilled(address indexed user, uint256 shares);
+    event WithdrawFulfilled(address indexed user, uint256 shares, bytes proof);
+    event YieldDistributed(uint256 totalYield, uint256 timestamp);
 
     constructor(
+        string memory name,
+        string memory symbol,
+        IERC20 _asset,
         AssetTokenizer _assetTokenizer,
-        ShareToken _shareToken,
         ComplianceModule _compliance,
         YieldDistributor _yieldDistributor,
-        ZKModule _zkModule
-    ) Ownable(msg.sender) {
+        ZKModule _zkModule,
+        string memory _strategy,
+        uint8 _riskScore,
+        string memory _custodian
+    ) ERC4626(_asset) ERC20(name, symbol) Ownable(msg.sender) {
         assetTokenizer = _assetTokenizer;
-        shareToken = _shareToken;
         compliance = _compliance;
         yieldDistributor = _yieldDistributor;
         zkModule = _zkModule;
+        vaultStrategy = _strategy;
+        riskScore = _riskScore;
+        custodian = _custodian;
     }
 
-    function depositAsset(uint256 assetId) external {
-        require(compliance.verifyAttestation(msg.sender, ""), "Not compliant"); // Placeholder
-        require(!depositedAssets[assetId], "Already deposited");
-        // Assume transfer or lock
-        assetTokenizer.lockAssetForVault(assetId, address(this));
-        depositedAssets[assetId] = true;
-        // Mint shares based on valuation
-        AssetTokenizer.Asset memory asset = assetTokenizer.getAsset(assetId);
-        uint256 valuation = asset.valuation;
-        shareToken.mint(msg.sender, valuation); // Simple 1:1 for MVP
-        emit Deposit(msg.sender, assetId);
+    function deposit(uint256 assets, address receiver) public override returns (uint256) {
+        require(compliance.isCompliant(receiver), "Not compliant");
+        uint256 shares = super.deposit(assets, receiver);
+        totalValueLocked += assets;
+        emit Deposit(receiver, assets, shares);
+        return shares;
+    }
+
+    function withdraw(uint256 assets, address receiver, address owner) public override returns (uint256) {
+        require(compliance.isCompliant(owner), "Not compliant");
+        uint256 shares = super.withdraw(assets, receiver, owner);
+        totalValueLocked -= assets;
+        return shares;
     }
 
     function requestWithdrawal(uint256 shares) external {
-        require(shareToken.balanceOf(msg.sender) >= shares, "Insufficient shares");
-        shareToken.transferFrom(msg.sender, address(this), shares);
+        require(balanceOf(msg.sender) >= shares, "Insufficient shares");
+        transfer(address(this), shares);
         pendingWithdrawals[msg.sender] += shares;
         emit WithdrawRequest(msg.sender, shares);
     }
 
-    function settleWithdrawal(bytes memory signedReceipt) external onlyOwner {
-        // For MVP, decode user and shares from signedReceipt
-        (address user, uint256 shares) = abi.decode(signedReceipt, (address, uint256));
-        require(pendingWithdrawals[user] >= shares, "No pending withdrawal");
-        pendingWithdrawals[user] -= shares;
-        shareToken.transfer(user, shares);
-        emit WithdrawFulfilled(user, shares);
+    function settleWithdrawal(bytes memory proof, uint256 shares) external {
+        require(zkModule.verifyProof(proof, abi.encode(msg.sender, shares)), "Invalid proof");
+        require(pendingWithdrawals[msg.sender] >= shares, "No pending withdrawal");
+        pendingWithdrawals[msg.sender] -= shares;
+        _burn(address(this), shares);
+        emit WithdrawFulfilled(msg.sender, shares, proof);
+    }
+
+    function calculateYield() external view returns (uint256) {
+        // Simplified yield calculation - in production would use oracles
+        uint256 timeElapsed = block.timestamp - lastYieldDistribution;
+        uint256 baseYield = (totalValueLocked * 8 * timeElapsed) / (365 days * 100); // 8% APY
+        return baseYield;
+    }
+
+    function distributeYield() external onlyOwner {
+        uint256 yield = calculateYield();
+        require(yield > 0, "No yield to distribute");
+        yieldDistributor.distribute(address(this), yield);
+        lastYieldDistribution = block.timestamp;
+        emit YieldDistributed(yield, block.timestamp);
+    }
+
+    function claimYield() external {
+        yieldDistributor.claim(msg.sender);
+        lastYieldClaim[msg.sender] = block.timestamp;
+    }
+
+    function getVaultStats() external view returns (
+        uint256 tvl,
+        uint256 apy,
+        uint256 depositors,
+        uint256 yieldDistributed
+    ) {
+        return (totalValueLocked, 800, totalSupply(), 0); // Simplified
     }
 }

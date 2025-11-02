@@ -197,10 +197,100 @@ app.post('/oracle/push', (req, res) => {
   res.json({ success: true });
 });
 
-// ZK Prover Service
+// ZK Proof Generation Service
 app.post('/zk/generate', (req, res) => {
-  // Generate proof
-  res.json({ proof: 'mock-proof', publicInputs: [] });
+  const { wallet, proofType, publicInputs } = req.body;
+  const proofId = 'proof_' + Math.random().toString(36).substr(2, 9);
+
+  // Simulate proof generation delay
+  setTimeout(() => {
+    // In production, this would call Circom/SnarkJS
+    const mockProof = {
+      proofId,
+      proof: 'mock-zk-proof-' + proofId,
+      publicInputs: publicInputs || [],
+      status: 'generated',
+      generatedAt: new Date().toISOString()
+    };
+
+    // Store proof (in production, store in database)
+    console.log('Generated ZK proof:', mockProof);
+  }, 10000); // 10 seconds
+
+  res.json({
+    proofId,
+    status: 'generating',
+    estimatedMs: 10000,
+    message: 'Proof generation started'
+  });
+});
+
+// ZK Proof Verification Service
+app.post('/zk/verify', (req, res) => {
+  const { proof, publicInputs } = req.body;
+
+  // Simulate verification
+  const isValid = Math.random() > 0.1; // 90% success rate for demo
+
+  res.json({
+    isValid,
+    verifiedAt: new Date().toISOString(),
+    message: isValid ? 'Proof verified successfully' : 'Proof verification failed'
+  });
+});
+
+// Price Oracle Service
+app.get('/oracle/prices', (req, res) => {
+  // Mock price feeds
+  const prices = {
+    ETH: { price: 2500, timestamp: Date.now() },
+    USDC: { price: 1.00, timestamp: Date.now() },
+    MNT: { price: 0.85, timestamp: Date.now() }
+  };
+
+  res.json({
+    prices,
+    source: 'mock-oracle',
+    updatedAt: new Date().toISOString()
+  });
+});
+
+// Custody Settlement Service
+app.post('/custody/settle', (req, res) => {
+  const { assetId, amount, currency, custodianId } = req.body;
+
+  // Simulate custody settlement
+  const settlementId = 'settlement_' + Math.random().toString(36).substr(2, 9);
+
+  setTimeout(() => {
+    // Simulate settlement completion
+    console.log(`Settlement ${settlementId} completed for asset ${assetId}`);
+  }, 5000);
+
+  res.json({
+    settlementId,
+    status: 'pending',
+    estimatedCompletion: '5-10 minutes',
+    custodianId,
+    amount,
+    currency
+  });
+});
+
+// KYC Status Check
+app.get('/kyc/status/:wallet', (req, res) => {
+  const { wallet } = req.params;
+
+  // Mock KYC status check
+  const kycStatus = {
+    wallet,
+    status: Math.random() > 0.2 ? 'verified' : 'pending', // 80% verified for demo
+    verifiedAt: new Date(Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000).toISOString(),
+    jurisdiction: 'US',
+    expiry: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString()
+  };
+
+  res.json(kycStatus);
 });
 
 // Audit logs endpoint

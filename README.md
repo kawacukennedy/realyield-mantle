@@ -32,14 +32,14 @@ RealYield enables the tokenization of real-world cash-flow assets (invoices, ren
 - Node.js 18+
 - npm or yarn
 - MetaMask or compatible Web3 wallet
-- Mantle testnet ETH for gas fees
+- Mantle testnet MNT for gas fees (get from [Mantle Faucet](https://faucet.testnet.mantle.xyz))
 
 ### Installation
 
 1. **Clone repository**:
 ```bash
-git clone https://github.com/kawacukennedy/realyield-mantle.git
-cd realyield-mantle
+git clone https://github.com/RealYieldApp/mantle-realyield.git
+cd mantle-realyield
 ```
 
 2. **Install dependencies**:
@@ -59,12 +59,17 @@ cd contracts && npm install && cd ..
 # Frontend
 cd frontend
 cp .env.example .env.local
-# Edit .env.local with your RPC URLs and API keys
+# Configure Mantle RPC and API keys
 
 # Backend
 cd ../backend
 cp .env.example .env
-# Configure database and API keys
+# Configure Mantle RPC and database
+
+# Contracts
+cd ../contracts
+cp .env.example .env
+# Add your private key for deployment
 ```
 
 4. **Start services**:
@@ -87,32 +92,36 @@ Visit [http://localhost:3000](http://localhost:3000)
 
 ## 📋 Demo Flow
 
-### For Hackathon Judges/Evaluators
+### Demo Flow
 
-1. **Connect Wallet**: Use MetaMask connected to Mantle testnet
-2. **KYC Process**: Complete privacy-preserving verification
-3. **Explore Vaults**: Browse available real estate yield opportunities
-4. **Create Asset** (Admin): Use `/create-asset` to tokenize a property
-5. **Deposit Funds**: Invest in vaults and track yields
-6. **Admin Panel**: Review at `/admin` for compliance management
-7. **Settings**: Configure notifications and privacy at `/settings`
+1. **Connect Wallet**: Use MetaMask connected to Mantle testnet (Chain ID: 5001)
+2. **Complete KYC**: Go to `/kyc` and follow the 4-step verification process
+3. **Explore Vaults**: Visit `/dashboard` to see available yield vaults
+4. **View Vault Details**: Click on any vault to see performance charts and deposit/withdraw options
+5. **Deposit Assets**: Select a vault and deposit ETH/USDC with KYC verification
+6. **Generate ZK Proofs**: Visit `/proofs` to create privacy-preserving proofs
+7. **Monitor Activity**: Track deposits, yields, and proof generation in real-time
 
 ### Key Features to Test
-- ✅ PWA installation and offline functionality
-- ✅ Real-time yield calculations
-- ✅ ZK proof generation for compliance
-- ✅ Multi-signature vault operations
-- ✅ Notification system with filtering
-- ✅ Responsive design across devices
+- ✅ ERC-1155 asset tokenization with compliance linkage
+- ✅ ERC-4626 vault composability with yield distribution
+- ✅ ZK selective disclosure proofs for privacy
+- ✅ KYC-attested wallet verification
+- ✅ Mantle network integration (Chain ID 5001)
+- ✅ Real-time vault statistics and performance tracking
 
 ## 🏭 Deployment
 
 ### Smart Contracts
 ```bash
 cd contracts
+npx hardhat compile
 npx hardhat run scripts/deploy.js --network mantleTestnet
+# Verify on Mantle Explorer: https://explorer.testnet.mantle.xyz
+
 # Or for mainnet:
 npx hardhat run scripts/deploy.js --network mantle
+# Verify on Mantle Explorer: https://explorer.mantle.xyz
 ```
 
 ### Backend
@@ -152,6 +161,14 @@ PORT=3001
 DATABASE_URL=postgresql://...
 JWT_SECRET=your_secret
 MANTLE_RPC_URL=https://rpc.testnet.mantle.xyz
+MANTLE_CHAIN_ID=5001
+```
+
+#### Contracts (`.env`)
+```env
+PRIVATE_KEY=your_private_key_without_0x_prefix
+MANTLE_TESTNET_RPC=https://rpc.testnet.mantle.xyz
+MANTLE_RPC=https://rpc.mantle.xyz
 ```
 
 ## 🧪 Testing

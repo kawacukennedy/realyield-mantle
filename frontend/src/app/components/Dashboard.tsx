@@ -149,52 +149,104 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-      {/* Summary */}
-        <div className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <TrendingUp size={20} />
-                Portfolio Summary
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="text-center">
-                  <div className="flex items-center justify-center mb-2">
-                    <DollarSign size={24} className="text-primary" />
-                  </div>
-                  <p className="text-2xl font-bold text-text">${portfolio.tvl.toLocaleString()}</p>
-                  <p className="text-sm text-text-muted">Total Value Locked</p>
-                </div>
-                <div className="text-center">
-                  <div className="flex items-center justify-center mb-2">
-                    <TrendingUp size={24} className="text-success" />
-                  </div>
-                  <p className="text-2xl font-bold text-text">${portfolio.totalYieldEarned.toLocaleString()}</p>
-                  <p className="text-sm text-text-muted">Yield Earned</p>
-                </div>
-                <div className="text-center">
-                  <div className="flex items-center justify-center mb-2">
-                    <Clock size={24} className="text-warning" />
-                  </div>
-                  <p className="text-2xl font-bold text-text">${portfolio.pendingWithdrawals.toLocaleString()}</p>
-                  <p className="text-sm text-text-muted">Pending Withdrawals</p>
-                </div>
+    <div className="space-y-8">
+      {/* Balance Overview */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Your Balance Overview</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="text-center">
+              <div className="flex items-center justify-center mb-2">
+                <DollarSign size={24} className="text-primary" />
               </div>
-            </CardContent>
-          </Card>
-        <Card>
-          <CardHeader>
-            <CardTitle>Quick Actions</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            <Button className="w-full">Deposit Funds</Button>
-            <Button variant="secondary" className="w-full">Withdraw Funds</Button>
-            <Button variant="outline" className="w-full">Create Asset</Button>
-          </CardContent>
-        </Card>
+              <p className="text-2xl font-bold text-text">${portfolio.tvl.toLocaleString()}</p>
+              <p className="text-sm text-text-muted">Your Deposits</p>
+            </div>
+            <div className="text-center">
+              <div className="flex items-center justify-center mb-2">
+                <TrendingUp size={24} className="text-success" />
+              </div>
+              <p className="text-2xl font-bold text-text">${portfolio.totalYieldEarned.toLocaleString()}</p>
+              <p className="text-sm text-text-muted">Current Yield</p>
+            </div>
+            <div className="text-center">
+              <div className="flex items-center justify-center mb-2">
+                <Clock size={24} className="text-warning" />
+              </div>
+              <p className="text-2xl font-bold text-text">${portfolio.pendingWithdrawals.toLocaleString()}</p>
+              <p className="text-sm text-text-muted">Pending Withdrawals</p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Vault Cards Grid */}
+      <div>
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="text-2xl font-bold">Available Vaults</h2>
+          <div className="flex gap-4">
+            <select className="px-3 py-2 bg-bg-card border border-border rounded-lg text-text">
+              <option>APY: High to Low</option>
+              <option>APY: Low to High</option>
+            </select>
+            <select className="px-3 py-2 bg-bg-card border border-border rounded-lg text-text">
+              <option>Risk: All</option>
+              <option>Risk: Low</option>
+              <option>Risk: Medium</option>
+              <option>Risk: High</option>
+            </select>
+            <select className="px-3 py-2 bg-bg-card border border-border rounded-lg text-text">
+              <option>Asset Type: All</option>
+              <option>Real Estate</option>
+              <option>Bonds</option>
+              <option>Invoices</option>
+            </select>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {filteredVaults.map(vault => (
+            <Card key={vault.id} className="hover:scale-105 transition-transform duration-300 hover:border-primary/50">
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <span className={`px-3 py-1 rounded-full text-sm font-medium ${
+                    vault.asset_type === 'Real Estate' ? 'bg-primary/10 text-primary' :
+                    vault.asset_type === 'Bonds' ? 'bg-secondary/10 text-secondary' :
+                    'bg-accent/10 text-accent'
+                  }`}>
+                    {vault.asset_type}
+                  </span>
+                  <span className="text-success font-semibold">{vault.apy}% APY</span>
+                </div>
+                <h3 className="text-xl font-bold mb-3 text-text">{vault.name}</h3>
+                <div className="space-y-2 mb-6">
+                  <div className="flex justify-between text-sm">
+                    <span className="text-text-muted">TVL</span>
+                    <span className="text-text">${vault.tvl.toLocaleString()}</span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-text-muted">Risk</span>
+                    <span className={`font-medium ${
+                      vault.risk_score <= 2 ? 'text-success' :
+                      vault.risk_score <= 3 ? 'text-warning' : 'text-danger'
+                    }`}>
+                      {vault.risk_score <= 2 ? 'Low' : vault.risk_score <= 3 ? 'Medium' : 'High'}
+                    </span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-text-muted">Jurisdiction</span>
+                    <span className="text-text">{vault.jurisdiction}</span>
+                  </div>
+                </div>
+                <Button className="w-full bg-gradient-to-r from-primary to-accent hover:shadow-lg hover:shadow-primary/25">
+                  Deposit
+                </Button>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
       </div>
 
       {/* Primary Content */}
