@@ -5,8 +5,8 @@ import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { Plus, Eye, CheckCircle, Clock, AlertCircle } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/Card';
-import { Button } from '../components/Button';
-import { Modal } from '../components/Modal';
+import Button from '../components/Button';
+import Modal from '../components/Modal';
 import ZKProofUX from '../components/ZKProofUX';
 import Breadcrumb from '../components/Breadcrumb';
 

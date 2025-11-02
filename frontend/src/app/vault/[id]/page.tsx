@@ -5,10 +5,10 @@ import { useParams } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { TrendingUp, Shield, Users, DollarSign, Calendar, Building, Upload, Download, Eye } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/Card';
-import { Button } from '../../components/Button';
-import { Input } from '../../components/Input';
-import { Modal } from '../../components/Modal';
-import { ProgressStepper } from '../../components/ProgressStepper';
+import Button from '../../components/Button';
+import Input from '../../components/Input';
+import Modal from '../../components/Modal';
+import ProgressStepper from '../../components/ProgressStepper';
 import Breadcrumb from '../../components/Breadcrumb';
 import Link from 'next/link';
 
