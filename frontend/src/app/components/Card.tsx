@@ -86,7 +86,7 @@ const CardHeaderComponent = ({ children, className = '' }: CardHeaderProps) => (
 export const CardHeader = memo(CardHeaderComponent);
 
 const CardTitleComponent = ({ children, className = '', level = 3 }: CardTitleProps) => {
-  const HeadingTag = `h${level}` as keyof JSX.IntrinsicElements;
+  const HeadingTag = `h${level}` as 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6';
   return (
     <HeadingTag className={`text-xl font-bold text-text ${className}`}>
       {children}
