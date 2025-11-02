@@ -2,6 +2,8 @@
 
 Compliant On-Chain Yield Vaults for Real-World Assets (RWA) on Mantle Network
 
+> 📋 **[Demo Script](demo.md)** - Step-by-step demo instructions
+
 ## 🎯 Overview
 
 RealYield enables the tokenization of real-world cash-flow assets (invoices, rental income, bonds) into compliant, yield-bearing vaults on the Mantle blockchain. The platform combines DeFi yields with traditional asset performance while maintaining regulatory compliance through ZK proofs and multi-signature controls.

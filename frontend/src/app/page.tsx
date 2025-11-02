@@ -1,16 +1,21 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, Suspense, lazy } from 'react';
 import { useAccount, useConnect } from 'wagmi';
 import { metaMask, walletConnect } from 'wagmi/connectors';
 import { motion } from 'framer-motion';
-import { Card, CardContent, CardHeader, CardTitle } from './components/Card';
-import { Upload, Vault, TrendingUp, Shield, Eye, Banknote } from 'lucide-react';
 import Link from 'next/link';
 import Button from './components/Button';
 import Modal from './components/Modal';
 import Toast from './components/Toast';
 import ThemeToggle from './components/ThemeToggle';
+import LoadingSkeleton from './components/LoadingSkeleton';
+
+// Lazy load heavy sections
+const VaultStatsSection = lazy(() => import('./components/VaultStatsSection'));
+const HowItWorksSection = lazy(() => import('./components/HowItWorksSection'));
+const VaultExplorerSection = lazy(() => import('./components/VaultExplorerSection'));
+const SecuritySection = lazy(() => import('./components/SecuritySection'));
 
 export default function Landing() {
   const { isConnected } = useAccount();
@@ -75,320 +80,92 @@ export default function Landing() {
       </section>
 
       {/* Live Vault Stats */}
-      <section className="py-16 px-6 bg-gradient-to-r from-bg-card to-bg-muted">
-        <div className="max-w-6xl mx-auto">
-          <motion.h2
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            className="text-3xl font-bold text-center mb-12 bg-gradient-to-r from-text to-primary bg-clip-text text-transparent"
-          >
-            Live Vault Statistics
-          </motion.h2>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-            <motion.div
-              initial={{ opacity: 0, scale: 0.8 }}
-              whileInView={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.6 }}
-              className="text-center"
-            >
-              <div className="text-4xl font-bold text-primary mb-2">$2,500,000</div>
-              <div className="text-text-muted">TVL</div>
-            </motion.div>
-            <motion.div
-              initial={{ opacity: 0, scale: 0.8 }}
-              whileInView={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.6, delay: 0.1 }}
-              className="text-center"
-            >
-              <div className="text-4xl font-bold text-secondary mb-2">7.8%</div>
-              <div className="text-text-muted">APY</div>
-            </motion.div>
-            <motion.div
-              initial={{ opacity: 0, scale: 0.8 }}
-              whileInView={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.6, delay: 0.2 }}
-              className="text-center"
-            >
-              <div className="text-4xl font-bold text-accent mb-2">1,247</div>
-              <div className="text-text-muted">Depositors</div>
-            </motion.div>
-            <motion.div
-              initial={{ opacity: 0, scale: 0.8 }}
-              whileInView={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.6, delay: 0.3 }}
-              className="text-center"
-            >
-              <div className="text-4xl font-bold text-success mb-2">$185,000</div>
-              <div className="text-text-muted">Yield Distributed</div>
-            </motion.div>
+      <Suspense fallback={
+        <section className="py-16 px-6 bg-gradient-to-r from-bg-card to-bg-muted">
+          <div className="max-w-6xl mx-auto">
+            <LoadingSkeleton width="300px" height="40px" className="mx-auto mb-12" />
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+              {[...Array(4)].map((_, i) => (
+                <div key={i} className="text-center">
+                  <LoadingSkeleton width="120px" height="40px" className="mx-auto mb-2" />
+                  <LoadingSkeleton width="80px" height="16px" className="mx-auto" />
+                </div>
+              ))}
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      }>
+        <VaultStatsSection />
+      </Suspense>
 
       {/* How it works */}
-      <section className="py-24 px-6">
-        <motion.h2
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          className="text-4xl font-bold text-center mb-16 bg-gradient-to-r from-text to-primary bg-clip-text text-transparent"
-        >
-          How it Works
-        </motion.h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            className="group"
-          >
-            <Card className="text-center h-full hover:border-primary/50 transition-all duration-300">
-              <CardContent className="pt-8">
-                <div className="w-20 h-20 bg-gradient-to-r from-primary to-accent rounded-full mx-auto mb-6 flex items-center justify-center text-white shadow-lg group-hover:scale-110 transition-transform duration-300">
-                  <Upload size={32} />
-                </div>
-                <h3 className="text-xl font-bold mb-4 text-text">Tokenize Assets</h3>
-                <p className="text-text-muted leading-relaxed">Upload and tokenize real-world assets with custody settlement.</p>
-              </CardContent>
-            </Card>
-          </motion.div>
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-            className="group"
-          >
-            <Card className="text-center h-full hover:border-secondary/50 transition-all duration-300">
-              <CardContent className="pt-8">
-                <div className="w-20 h-20 bg-gradient-to-r from-secondary to-primary rounded-full mx-auto mb-6 flex items-center justify-center text-white shadow-lg group-hover:scale-110 transition-transform duration-300">
-                  <Vault size={32} />
-                </div>
-                <h3 className="text-xl font-bold mb-4 text-text">Pool in Vaults</h3>
-                <p className="text-text-muted leading-relaxed">Deposit assets into KYC-gated yield vaults for passive income.</p>
-              </CardContent>
-            </Card>
-          </motion.div>
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.4 }}
-            className="group"
-          >
-            <Card className="text-center h-full hover:border-accent/50 transition-all duration-300">
-              <CardContent className="pt-8">
-                <div className="w-20 h-20 bg-gradient-to-r from-accent to-secondary rounded-full mx-auto mb-6 flex items-center justify-center text-white shadow-lg group-hover:scale-110 transition-transform duration-300">
-                  <TrendingUp size={32} />
-                </div>
-                <h3 className="text-xl font-bold mb-4 text-text">Earn Yield</h3>
-                <p className="text-text-muted leading-relaxed">Receive audited yield distributions automatically.</p>
-              </CardContent>
-            </Card>
-          </motion.div>
-        </div>
-      </section>
+      <Suspense fallback={
+        <section className="py-24 px-6">
+          <LoadingSkeleton width="400px" height="48px" className="mx-auto mb-16" />
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+            {[...Array(3)].map((_, i) => (
+              <div key={i} className="text-center">
+                <LoadingSkeleton width="80px" height="80px" className="rounded-full mx-auto mb-6" />
+                <LoadingSkeleton width="200px" height="24px" className="mx-auto mb-4" />
+                <LoadingSkeleton width="250px" height="16px" className="mx-auto" />
+                <LoadingSkeleton width="200px" height="16px" className="mx-auto" />
+              </div>
+            ))}
+          </div>
+        </section>
+      }>
+        <HowItWorksSection />
+      </Suspense>
 
       {/* Vault Explorer Preview */}
-      <section className="py-24 px-6 bg-gradient-to-r from-bg-card to-bg-muted">
-        <motion.h2
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          className="text-4xl font-bold text-center mb-12 bg-gradient-to-r from-text to-primary bg-clip-text text-transparent"
-        >
-          Top Vaults
-        </motion.h2>
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-          className="mb-12 flex flex-wrap justify-center gap-4"
-        >
-          <select className="p-3 bg-bg-card border border-border rounded-lg text-text hover:border-primary focus:border-primary transition-colors">
-            <option>APY: High to Low</option>
-            <option>APY: Low to High</option>
-          </select>
-          <select className="p-3 bg-bg-card border border-border rounded-lg text-text hover:border-primary focus:border-primary transition-colors">
-            <option>Risk: All</option>
-            <option>Risk: Low</option>
-            <option>Risk: Medium</option>
-            <option>Risk: High</option>
-          </select>
-          <select className="p-3 bg-bg-card border border-border rounded-lg text-text hover:border-primary focus:border-primary transition-colors">
-            <option>Asset Type: All</option>
-            <option>Real Estate</option>
-            <option>Bonds</option>
-            <option>Invoices</option>
-          </select>
-          <select className="p-3 bg-bg-card border border-border rounded-lg text-text hover:border-primary focus:border-primary transition-colors">
-            <option>Jurisdiction: Any</option>
-            <option>US</option>
-            <option>EU</option>
-          </select>
-        </motion.div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            whileHover={{ y: -8 }}
-            className="group"
-          >
-            <Card className="h-full group-hover:border-primary/50 transition-all duration-300">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between mb-4">
-                  <span className="px-3 py-1 bg-primary/10 text-primary rounded-full text-sm font-medium">Real Estate</span>
-                  <span className="text-success font-semibold">8.5% APY</span>
-                </div>
-                <h3 className="text-xl font-bold mb-3 text-text">Premium Real Estate Vault</h3>
+      <Suspense fallback={
+        <section className="py-24 px-6 bg-gradient-to-r from-bg-card to-bg-muted">
+          <LoadingSkeleton width="300px" height="48px" className="mx-auto mb-12" />
+          <div className="mb-12 flex flex-wrap justify-center gap-4">
+            {[...Array(4)].map((_, i) => (
+              <LoadingSkeleton key={i} width="150px" height="40px" />
+            ))}
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
+            {[...Array(3)].map((_, i) => (
+              <div key={i} className="bg-bg-card rounded-xl p-6 border border-border">
+                <LoadingSkeleton width="120px" height="24px" className="mb-4" />
+                <LoadingSkeleton width="200px" height="28px" className="mb-3" />
                 <div className="space-y-2 mb-6">
-                  <div className="flex justify-between text-sm">
-                    <span className="text-text-muted">TVL</span>
-                    <span className="text-text">$1,000,000</span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-text-muted">Risk</span>
-                    <span className="text-warning">Medium</span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-text-muted">Jurisdiction</span>
-                    <span className="text-text">US</span>
-                  </div>
+                  {[...Array(3)].map((_, j) => (
+                    <div key={j} className="flex justify-between">
+                      <LoadingSkeleton width="60px" height="16px" />
+                      <LoadingSkeleton width="80px" height="16px" />
+                    </div>
+                  ))}
                 </div>
-                <Button className="w-full bg-gradient-to-r from-primary to-accent hover:shadow-lg hover:shadow-primary/25">
-                  Deposit
-                </Button>
-              </CardContent>
-            </Card>
-          </motion.div>
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-            whileHover={{ y: -8 }}
-            className="group"
-          >
-            <Card className="h-full group-hover:border-secondary/50 transition-all duration-300">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between mb-4">
-                  <span className="px-3 py-1 bg-secondary/10 text-secondary rounded-full text-sm font-medium">Bonds</span>
-                  <span className="text-success font-semibold">5.2% APY</span>
-                </div>
-                <h3 className="text-xl font-bold mb-3 text-text">Government Bond Vault</h3>
-                <div className="space-y-2 mb-6">
-                  <div className="flex justify-between text-sm">
-                    <span className="text-text-muted">TVL</span>
-                    <span className="text-text">$500,000</span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-text-muted">Risk</span>
-                    <span className="text-success">Low</span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-text-muted">Jurisdiction</span>
-                    <span className="text-text">EU</span>
-                  </div>
-                </div>
-                <Button className="w-full bg-gradient-to-r from-secondary to-primary hover:shadow-lg hover:shadow-secondary/25">
-                  Deposit
-                </Button>
-              </CardContent>
-            </Card>
-          </motion.div>
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.4 }}
-            whileHover={{ y: -8 }}
-            className="group"
-          >
-            <Card className="h-full group-hover:border-accent/50 transition-all duration-300">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between mb-4">
-                  <span className="px-3 py-1 bg-accent/10 text-accent rounded-full text-sm font-medium">Invoices</span>
-                  <span className="text-success font-semibold">6.8% APY</span>
-                </div>
-                <h3 className="text-xl font-bold mb-3 text-text">Invoice Financing Vault</h3>
-                <div className="space-y-2 mb-6">
-                  <div className="flex justify-between text-sm">
-                    <span className="text-text-muted">TVL</span>
-                    <span className="text-text">$300,000</span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-text-muted">Risk</span>
-                    <span className="text-warning">Medium</span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-text-muted">Jurisdiction</span>
-                    <span className="text-text">US</span>
-                  </div>
-                </div>
-                <Button className="w-full bg-gradient-to-r from-accent to-secondary hover:shadow-lg hover:shadow-accent/25">
-                  Deposit
-                </Button>
-              </CardContent>
-            </Card>
-          </motion.div>
-        </div>
-      </section>
+                <LoadingSkeleton width="100%" height="40px" />
+              </div>
+            ))}
+          </div>
+        </section>
+      }>
+        <VaultExplorerSection />
+      </Suspense>
 
       {/* Security & Compliance */}
-      <section className="py-24 px-6 text-center">
-        <motion.h2
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          className="text-4xl font-bold mb-16 bg-gradient-to-r from-text to-primary bg-clip-text text-transparent"
-        >
-          Security & Compliance
-        </motion.h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto">
-          <motion.div
-            initial={{ opacity: 0, scale: 0.8 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.6 }}
-            className="group"
-          >
-            <Card className="h-full hover:border-success/50 transition-all duration-300">
-              <CardContent className="pt-8">
-                <div className="w-20 h-20 bg-gradient-to-r from-success to-success/80 rounded-full mx-auto mb-6 flex items-center justify-center text-white shadow-lg group-hover:scale-110 transition-transform duration-300">
-                  <Shield size={32} />
-                </div>
-                <h3 className="text-xl font-bold mb-4 text-text">KYC Required</h3>
-                <p className="text-text-muted leading-relaxed">All participants undergo thorough identity verification for regulatory compliance.</p>
-              </CardContent>
-            </Card>
-          </motion.div>
-          <motion.div
-            initial={{ opacity: 0, scale: 0.8 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-            className="group"
-          >
-            <Card className="h-full hover:border-primary/50 transition-all duration-300">
-              <CardContent className="pt-8">
-                <div className="w-20 h-20 bg-gradient-to-r from-primary to-accent rounded-full mx-auto mb-6 flex items-center justify-center text-white shadow-lg group-hover:scale-110 transition-transform duration-300">
-                  <Eye size={32} />
-                </div>
-                <h3 className="text-xl font-bold mb-4 text-text">ZK Privacy</h3>
-                <p className="text-text-muted leading-relaxed">Zero-knowledge proofs ensure privacy while maintaining compliance and security.</p>
-              </CardContent>
-            </Card>
-          </motion.div>
-          <motion.div
-            initial={{ opacity: 0, scale: 0.8 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.6, delay: 0.4 }}
-            className="group"
-          >
-            <Card className="h-full hover:border-secondary/50 transition-all duration-300">
-              <CardContent className="pt-8">
-                <div className="w-20 h-20 bg-gradient-to-r from-secondary to-primary rounded-full mx-auto mb-6 flex items-center justify-center text-white shadow-lg group-hover:scale-110 transition-transform duration-300">
-                  <Banknote size={32} />
-                </div>
-                <h3 className="text-xl font-bold mb-4 text-text">Custodial Settlement</h3>
-                <p className="text-text-muted leading-relaxed">Professional custodians handle asset settlement with institutional-grade security.</p>
-              </CardContent>
-            </Card>
-          </motion.div>
-        </div>
-      </section>
+      <Suspense fallback={
+        <section className="py-24 px-6 text-center">
+          <LoadingSkeleton width="400px" height="48px" className="mx-auto mb-16" />
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto">
+            {[...Array(3)].map((_, i) => (
+              <div key={i} className="text-center">
+                <LoadingSkeleton width="80px" height="80px" className="rounded-full mx-auto mb-6" />
+                <LoadingSkeleton width="150px" height="24px" className="mx-auto mb-4" />
+                <LoadingSkeleton width="250px" height="16px" className="mx-auto" />
+                <LoadingSkeleton width="200px" height="16px" className="mx-auto" />
+              </div>
+            ))}
+          </div>
+        </section>
+      }>
+        <SecuritySection />
+      </Suspense>
 
       {/* Footer */}
       <footer className="py-16 px-6 bg-gradient-to-r from-bg-card to-bg-muted border-t border-border">

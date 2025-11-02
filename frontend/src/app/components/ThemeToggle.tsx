@@ -1,72 +1,76 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { Moon, Sun } from 'lucide-react';
+import { useEffect } from 'react';
+import { Moon, Sun, Monitor } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { useTheme } from './ThemeProvider';
 
 export default function ThemeToggle() {
-  const [theme, setTheme] = useState('light');
-  const [mounted, setMounted] = useState(false);
+  const { theme, setTheme, resolvedTheme } = useTheme();
 
   useEffect(() => {
-    setMounted(true);
-    const savedTheme = localStorage.getItem('theme') || 'light';
-    setTheme(savedTheme);
-    document.documentElement.classList.toggle('dark', savedTheme === 'dark');
-
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.ctrlKey && e.key === 'd') {
         e.preventDefault();
-        toggleTheme();
+        cycleTheme();
       }
     };
 
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
-  }, []);
+  }, [theme]);
 
-  const toggleTheme = () => {
-    const newTheme = theme === 'dark' ? 'light' : 'dark';
-    setTheme(newTheme);
-    localStorage.setItem('theme', newTheme);
-    document.documentElement.classList.toggle('dark', newTheme === 'dark');
+  const cycleTheme = () => {
+    const themes: ('light' | 'dark' | 'system')[] = ['light', 'dark', 'system'];
+    const currentIndex = themes.indexOf(theme);
+    const nextIndex = (currentIndex + 1) % themes.length;
+    setTheme(themes[nextIndex]);
   };
 
-  if (!mounted) {
-    return (
-      <div className="w-10 h-10 bg-bg-muted rounded-full animate-pulse" />
-    );
-  }
+  const getIcon = () => {
+    switch (theme) {
+      case 'light':
+        return <Sun size={20} className="text-warning" />;
+      case 'dark':
+        return <Moon size={20} className="text-primary" />;
+      case 'system':
+        return <Monitor size={20} className="text-secondary" />;
+      default:
+        return <Sun size={20} className="text-warning" />;
+    }
+  };
+
+  const getTooltip = () => {
+    switch (theme) {
+      case 'light':
+        return 'Switch to dark mode (Ctrl+D)';
+      case 'dark':
+        return 'Switch to system mode (Ctrl+D)';
+      case 'system':
+        return 'Switch to light mode (Ctrl+D)';
+      default:
+        return 'Toggle theme (Ctrl+D)';
+    }
+  };
 
   return (
     <motion.button
-      onClick={toggleTheme}
+      onClick={cycleTheme}
       className="relative p-2 rounded-full bg-bg-muted hover:bg-bg-card border border-border transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-bg-dark group"
       whileHover={{ scale: 1.05 }}
       whileTap={{ scale: 0.95 }}
-      title={`Toggle to ${theme === 'dark' ? 'light' : 'dark'} mode (Ctrl+D)`}
+      title={getTooltip()}
+      aria-label={`Current theme: ${theme}. ${getTooltip()}`}
     >
       <motion.div
-        initial={false}
-        animate={{
-          rotate: theme === 'dark' ? 0 : 180,
-          scale: theme === 'dark' ? 1 : 0
-        }}
+        key={theme}
+        initial={{ rotate: -180, scale: 0 }}
+        animate={{ rotate: 0, scale: 1 }}
+        exit={{ rotate: 180, scale: 0 }}
         transition={{ duration: 0.3, ease: "easeInOut" }}
-        className="absolute inset-0 flex items-center justify-center"
+        className="flex items-center justify-center"
       >
-        <Sun size={20} className="text-warning" />
-      </motion.div>
-      <motion.div
-        initial={false}
-        animate={{
-          rotate: theme === 'dark' ? -180 : 0,
-          scale: theme === 'dark' ? 0 : 1
-        }}
-        transition={{ duration: 0.3, ease: "easeInOut" }}
-        className="absolute inset-0 flex items-center justify-center"
-      >
-        <Moon size={20} className="text-primary" />
+        {getIcon()}
       </motion.div>
     </motion.button>
   );

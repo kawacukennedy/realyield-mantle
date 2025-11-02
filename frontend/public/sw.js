@@ -1,7 +1,8 @@
 // Service Worker for RealYield PWA
-const CACHE_NAME = 'realyield-v1';
-const STATIC_CACHE = 'realyield-static-v1';
-const DYNAMIC_CACHE = 'realyield-dynamic-v1';
+const CACHE_NAME = 'realyield-v1.1.0';
+const STATIC_CACHE = 'realyield-static-v1.1.0';
+const DYNAMIC_CACHE = 'realyield-dynamic-v1.1.0';
+const API_CACHE = 'realyield-api-v1.1.0';
 
 // Assets to cache immediately
 const STATIC_ASSETS = [
@@ -10,12 +11,22 @@ const STATIC_ASSETS = [
   '/vault',
   '/create-asset',
   '/kyc',
+  '/proofs',
   '/settings',
   '/notifications',
   '/admin',
   '/offline.html',
   '/manifest.json',
-  '/favicon.ico'
+  '/favicon.ico',
+  '/icon-192.png',
+  '/icon-512.png'
+];
+
+// API endpoints to cache
+const API_PATTERNS = [
+  /\/v1\/vaults/,
+  /\/v1\/kyc\/status/,
+  /\/oracle\/prices/
 ];
 
 // Install event - cache static assets
@@ -62,12 +73,44 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Handle API requests differently
-  if (url.pathname.startsWith('/api/')) {
+  // Handle API requests with network-first strategy
+  if (API_PATTERNS.some(pattern => pattern.test(url.pathname))) {
     event.respondWith(
-      fetch(request)
-        .then((response) => {
-          // Cache successful API responses
+      caches.open(API_CACHE).then((cache) => {
+        return fetch(request)
+          .then((response) => {
+            // Cache successful responses
+            if (response.status === 200) {
+              cache.put(request, response.clone());
+            }
+            return response;
+          })
+          .catch(() => {
+            // Return cached version if network fails
+            return cache.match(request).then((cachedResponse) => {
+              return cachedResponse || new Response(
+                JSON.stringify({
+                  error: 'Offline',
+                  message: 'Data not available offline. Please check your connection.'
+                }),
+                {
+                  status: 503,
+                  headers: { 'Content-Type': 'application/json' }
+                }
+              );
+            });
+          });
+      })
+    );
+    return;
+  }
+
+  // Handle page requests with cache-first strategy
+  if (request.destination === 'document') {
+    event.respondWith(
+      caches.match(request).then((cachedResponse) => {
+        return cachedResponse || fetch(request).then((response) => {
+          // Cache successful page responses
           if (response.status === 200) {
             const responseClone = response.clone();
             caches.open(DYNAMIC_CACHE).then((cache) => {
@@ -75,70 +118,60 @@ self.addEventListener('fetch', (event) => {
             });
           }
           return response;
-        })
-        .catch(() => {
-          // Return cached API response if available
-          return caches.match(request);
-        })
-    );
-    return;
-  }
-
-  // Handle page requests
-  if (request.destination === 'document') {
-    event.respondWith(
-      caches.match(request)
-        .then((cachedResponse) => {
-          if (cachedResponse) {
-            return cachedResponse;
-          }
-
-          return fetch(request)
-            .then((response) => {
-              // Cache successful page responses
-              if (response.status === 200) {
-                const responseClone = response.clone();
-                caches.open(DYNAMIC_CACHE).then((cache) => {
-                  cache.put(request, responseClone);
-                });
-              }
-              return response;
-            })
-            .catch(() => {
-              // Return offline page for navigation requests
-              return caches.match('/offline.html');
-            });
-        })
-    );
-    return;
-  }
-
-  // Handle other requests (images, styles, scripts)
-  event.respondWith(
-    caches.match(request)
-      .then((cachedResponse) => {
-        if (cachedResponse) {
-          return cachedResponse;
-        }
-
-        return fetch(request)
-          .then((response) => {
-            // Cache successful responses
-            if (response.status === 200) {
-              const responseClone = response.clone();
-              caches.open(DYNAMIC_CACHE).then((cache) => {
-                cache.put(request, responseClone);
-              });
-            }
-            return response;
-          })
-          .catch(() => {
-            // Return a fallback for images
-            if (request.destination === 'image') {
-              return new Response('', { status: 404 });
-            }
-          });
+        }).catch(() => {
+          // Return offline page for navigation requests
+          return caches.match('/offline.html');
+        });
       })
+    );
+    return;
+  }
+
+  // Handle static assets with cache-first strategy
+  if (request.destination === 'style' || request.destination === 'script' || request.destination === 'font') {
+    event.respondWith(
+      caches.match(request).then((cachedResponse) => {
+        return cachedResponse || fetch(request).then((response) => {
+          // Cache static assets
+          if (response.status === 200) {
+            const responseClone = response.clone();
+            caches.open(STATIC_CACHE).then((cache) => {
+              cache.put(request, responseClone);
+            });
+          }
+          return response;
+        });
+      })
+    );
+    return;
+  }
+
+  // Handle images with cache-first strategy and fallback
+  if (request.destination === 'image') {
+    event.respondWith(
+      caches.match(request).then((cachedResponse) => {
+        return cachedResponse || fetch(request).then((response) => {
+          if (response.status === 200) {
+            const responseClone = response.clone();
+            caches.open(DYNAMIC_CACHE).then((cache) => {
+              cache.put(request, responseClone);
+            });
+          }
+          return response;
+        }).catch(() => {
+          // Return a placeholder for failed images
+          return new Response('', { status: 404 });
+        });
+      })
+    );
+    return;
+  }
+
+  // Default strategy for other requests
+  event.respondWith(
+    caches.match(request).then((cachedResponse) => {
+      return cachedResponse || fetch(request);
+    })
   );
 });
 
