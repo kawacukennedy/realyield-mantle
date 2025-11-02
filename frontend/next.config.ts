@@ -33,36 +33,8 @@ const nextConfig: NextConfig = {
   compress: true,
   poweredByHeader: false,
   reactStrictMode: true,
-  swcMinify: true,
-  // Code splitting optimizations
-  webpack: (config, { isServer }) => {
-    if (!isServer) {
-      // Optimize chunks
-      config.optimization.splitChunks.chunks = 'all';
-      config.optimization.splitChunks.cacheGroups = {
-        ...config.optimization.splitChunks.cacheGroups,
-        vendor: {
-          test: /[\\/]node_modules[\\/]/,
-          name: 'vendors',
-          chunks: 'all',
-          priority: 10,
-        },
-        wagmi: {
-          test: /[\\/]node_modules[\\/](wagmi|@wagmi|viem|ethers)[\\/]/,
-          name: 'wagmi',
-          chunks: 'all',
-          priority: 20,
-        },
-        ui: {
-          test: /[\\/]components[\\/]/,
-          name: 'ui',
-          chunks: 'all',
-          priority: 15,
-        },
-      };
-    }
-    return config;
-  },
+  // Turbopack configuration for Next.js 16
+  turbopack: {},
 };
 
 export default bundleAnalyzer(nextConfig);
