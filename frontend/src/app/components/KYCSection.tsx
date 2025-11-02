@@ -25,6 +25,7 @@ export default function KYCOnboardingFlow() {
   const [attestation, setAttestation] = useState<any>(null);
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
   const [livenessCheckPassed, setLivenessCheckPassed] = useState(false);
+  const [consent, setConsent] = useState(false);
 
   const { register: registerProfile, handleSubmit: handleSubmitProfile, formState: { errors: errorsProfile } } = useForm<ProfileForm>();
   const { register: registerKYC, handleSubmit: handleSubmitKYC, formState: { errors: errorsKYC } } = useForm<KYCForm>();
