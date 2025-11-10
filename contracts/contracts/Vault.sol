@@ -14,7 +14,7 @@ import "./YieldDistributor.sol";
  * Manages deposits, withdrawals, and yield distribution with ZK privacy protection.
  * Integrates with compliance modules for KYC verification and ZK proofs for privacy.
  */
-contract Vault is ERC4626, Ownable {
+contract VaultContract is ERC4626, Ownable {
     AssetTokenizer public assetTokenizer;
     ComplianceModule public compliance;
     YieldDistributor public yieldDistributor;
@@ -93,7 +93,7 @@ contract Vault is ERC4626, Ownable {
         emit WithdrawFulfilled(msg.sender, shares, proof);
     }
 
-    function calculateYield() external view returns (uint256) {
+    function calculateYield() public view returns (uint256) {
         // Simplified yield calculation - in production would use oracles
         uint256 timeElapsed = block.timestamp - lastYieldDistribution;
         uint256 baseYield = (totalValueLocked * 8 * timeElapsed) / (365 days * 100); // 8% APY

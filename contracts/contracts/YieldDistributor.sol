@@ -53,8 +53,8 @@ contract YieldDistributor is Ownable {
         uint256 totalClaimable = 0;
         for (uint256 i = 0; i < distributions[vault].length; i++) {
             if (!claimed[user][i] && distributions[vault][i].active) {
-                uint256 userShares = userShares[vault][user];
-                uint256 claimAmount = userShares * distributions[vault][i].perShareAmount;
+                uint256 userShareBalance = userShares[vault][user];
+                uint256 claimAmount = userShareBalance * distributions[vault][i].perShareAmount;
                 totalClaimable += claimAmount;
                 claimed[user][i] = true;
                 emit YieldClaimed(user, vault, i, claimAmount);
@@ -70,8 +70,8 @@ contract YieldDistributor is Ownable {
         uint256 totalPending = 0;
         for (uint256 i = 0; i < distributions[vault].length; i++) {
             if (!claimed[user][i] && distributions[vault][i].active) {
-                uint256 userShares = userShares[vault][user];
-                totalPending += userShares * distributions[vault][i].perShareAmount;
+                uint256 userShareBalance = userShares[vault][user];
+                totalPending += userShareBalance * distributions[vault][i].perShareAmount;
             }
         }
         return totalPending;

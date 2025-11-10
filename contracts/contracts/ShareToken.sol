@@ -22,8 +22,8 @@ contract ShareToken is ERC20Permit, Ownable {
 
     function _beforeTokenTransfer(address from, address to, uint256 amount) internal {
         if (from != address(0) && to != address(0)) {
-            require(compliance.verifyAttestation(from, ""), "From not compliant"); // Placeholder, need attestation
-            require(compliance.verifyAttestation(to, ""), "To not compliant");
+            require(compliance.isCompliant(from), "From not compliant");
+            require(compliance.isCompliant(to), "To not compliant");
         }
     }
 }

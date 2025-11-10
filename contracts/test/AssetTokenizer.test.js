@@ -25,6 +25,9 @@ describe("AssetTokenizer", function () {
     const metadataURI = "ipfs://test-metadata";
     const attestationHash = ethers.keccak256(ethers.toUtf8Bytes("attestation"));
 
+    // Set compliance module
+    await assetTokenizer.setCompliance(await complianceModule.getAddress());
+
     // Add attestation for user
     await complianceModule.addAttestation(user.address, attestationHash);
 
@@ -50,6 +53,9 @@ describe("AssetTokenizer", function () {
   });
 
   it("Should lock asset for vault", async function () {
+    // Set compliance module
+    await assetTokenizer.setCompliance(await complianceModule.getAddress());
+
     // Mint first
     const metadataURI = "ipfs://test";
     const attestationHash = ethers.keccak256(ethers.toUtf8Bytes("attestation"));
@@ -63,6 +69,9 @@ describe("AssetTokenizer", function () {
   });
 
   it("Should return correct URI", async function () {
+    // Set compliance module
+    await assetTokenizer.setCompliance(await complianceModule.getAddress());
+
     const metadataURI = "ipfs://test-uri";
     const attestationHash = ethers.keccak256(ethers.toUtf8Bytes("attestation"));
     await complianceModule.addAttestation(user.address, attestationHash);

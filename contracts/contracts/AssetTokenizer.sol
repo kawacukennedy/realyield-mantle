@@ -49,24 +49,9 @@ contract AssetTokenizer is ERC1155, Ownable {
         string memory metadataURI,
         bytes memory attestationHash
     ) external returns (uint256) {
-        require(complianceModules[msg.sender] || msg.sender == owner(), "Not authorized");
-        uint256 assetId = _nextAssetId++;
-
-        // Parse metadataURI for asset details (simplified)
-        // In production, this would parse JSON metadata
-        assets[assetId] = Asset({
-            metadataURI: metadataURI,
-            issuer: owner,
-            attestationHash: attestationHash,
-            valuation: 0, // Would be parsed from metadata
-            maturity: 0,  // Would be parsed from metadata
-            locked: false,
-            assetType: "invoice" // Default, would be parsed
-        });
-
-        _mint(owner, assetId, 1, "");
-        emit AssetMinted(assetId, owner, metadataURI, attestationHash);
-        return assetId;
+        require(complianceModules[msg.sender] || msg.sender == owner, "Not authorized");
+        _mintAsset(owner, metadataURI, attestationHash);
+        return _nextAssetId - 1;
     }
 
     function batchMintAsset(
@@ -75,8 +60,29 @@ contract AssetTokenizer is ERC1155, Ownable {
     ) external onlyOwner {
         require(owners.length == metadataURIs.length, "Mismatched arrays");
         for (uint256 i = 0; i < owners.length; i++) {
-            mintAsset(owners[i], metadataURIs[i], "");
+            _mintAsset(owners[i], metadataURIs[i], "");
         }
+    }
+
+    function _mintAsset(
+        address owner,
+        string memory metadataURI,
+        bytes memory attestationHash
+    ) internal {
+        uint256 assetId = _nextAssetId++;
+
+        assets[assetId] = Asset({
+            metadataURI: metadataURI,
+            issuer: owner,
+            attestationHash: attestationHash,
+            valuation: 0,
+            maturity: 0,
+            locked: false,
+            assetType: "invoice"
+        });
+
+        _mint(owner, assetId, 1, "");
+        emit AssetMinted(assetId, owner, metadataURI, attestationHash);
     }
 
     function lockAssetForVault(uint256 assetId, address vault) external {

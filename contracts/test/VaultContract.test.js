@@ -2,11 +2,16 @@ const { expect } = require("chai");
 const { ethers } = require("hardhat");
 
 describe("VaultContract", function () {
-  let vaultContract, assetTokenizer, shareToken, compliance, yieldDistributor, zkModule;
+  let vaultContract, mockAsset, compliance, yieldDistributor, zkModule;
   let owner, user;
 
   beforeEach(async function () {
     [owner, user] = await ethers.getSigners();
+
+    // Deploy mock ERC20 asset
+    const MockERC20 = await ethers.getContractFactory("MockERC20");
+    mockAsset = await MockERC20.deploy("Mock Asset", "MOCK");
+    await mockAsset.waitForDeployment();
 
     // Deploy dependencies
     const ComplianceModule = await ethers.getContractFactory("ComplianceModule");
@@ -17,52 +22,56 @@ describe("VaultContract", function () {
     zkModule = await ZKModule.deploy();
     await zkModule.waitForDeployment();
 
-    const AssetTokenizer = await ethers.getContractFactory("AssetTokenizer");
-    assetTokenizer = await AssetTokenizer.deploy();
-    await assetTokenizer.waitForDeployment();
-
-    const ShareToken = await ethers.getContractFactory("ShareToken");
-    shareToken = await ShareToken.deploy("Share Token", "SHARE", await compliance.getAddress());
-    await shareToken.waitForDeployment();
-
     const YieldDistributor = await ethers.getContractFactory("YieldDistributor");
-    yieldDistributor = await YieldDistributor.deploy(await shareToken.getAddress());
+    yieldDistributor = await YieldDistributor.deploy(await mockAsset.getAddress());
     await yieldDistributor.waitForDeployment();
 
     const VaultContract = await ethers.getContractFactory("VaultContract");
     vaultContract = await VaultContract.deploy(
-      await assetTokenizer.getAddress(),
-      await shareToken.getAddress(),
+      await mockAsset.getAddress(),
       await compliance.getAddress(),
       await yieldDistributor.getAddress(),
-      await zkModule.getAddress()
+      await zkModule.getAddress(),
+      "Real Estate", // strategy
+      3, // risk score
+      "Test Custodian" // custodian
     );
     await vaultContract.waitForDeployment();
 
-    // Attest user
-    await compliance.attestKYC(user.address, "mock-attestation");
+    // Attest user for compliance
+    const attestationHash = ethers.keccak256(ethers.toUtf8Bytes("attestation"));
+    await compliance.addAttestation(user.address, attestationHash);
+
+    // Mint some tokens to user
+    await mockAsset.mint(user.address, ethers.parseEther("1000"));
+    await mockAsset.connect(user).approve(await vaultContract.getAddress(), ethers.parseEther("1000"));
   });
 
-  it("Should deposit asset and mint shares", async function () {
-    // Mint asset
-    const uri = "ipfs://test";
-    const proofHash = ethers.keccak256(ethers.toUtf8Bytes("proof"));
-    const valuation = 1000000;
-    const maturity = Math.floor(Date.now() / 1000) + 365 * 24 * 60 * 60;
-    await assetTokenizer.mintAsset(uri, user.address, proofHash, valuation, maturity);
+  it("Should deposit assets and mint shares", async function () {
+    const depositAmount = ethers.parseEther("100");
 
     // Deposit
-    await vaultContract.connect(user).depositAsset(0);
-    expect(await shareToken.balanceOf(user.address)).to.equal(valuation);
+    await vaultContract.connect(user).deposit(depositAmount, user.address);
+
+    // Check shares were minted
+    const shares = await vaultContract.balanceOf(user.address);
+    expect(shares).to.be.gt(0);
+
+    // Check TVL increased
+    const tvl = await vaultContract.totalValueLocked();
+    expect(tvl).to.equal(depositAmount);
   });
 
   it("Should request withdrawal", async function () {
+    const depositAmount = ethers.parseEther("100");
+
     // Deposit first
-    await assetTokenizer.mintAsset("ipfs://test", user.address, ethers.keccak256(ethers.toUtf8Bytes("proof")), 1000000, Math.floor(Date.now() / 1000) + 365 * 24 * 60 * 60);
-    await vaultContract.connect(user).depositAsset(0);
+    await vaultContract.connect(user).deposit(depositAmount, user.address);
+
+    const shares = await vaultContract.balanceOf(user.address);
 
     // Request withdrawal
-    await vaultContract.connect(user).requestWithdrawal(500000);
-    expect(await vaultContract.pendingWithdrawals(user.address)).to.equal(500000);
+    await vaultContract.connect(user).requestWithdrawal(shares);
+    expect(await vaultContract.pendingWithdrawals(user.address)).to.equal(shares);
   });
 });
