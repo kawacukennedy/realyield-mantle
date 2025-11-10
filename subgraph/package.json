@@ -1,0 +1,17 @@
+{
+  "name": "realyield-subgraph",
+  "version": "1.0.0",
+  "description": "The Graph subgraph for RealYield protocol",
+  "scripts": {
+    "codegen": "graph codegen",
+    "build": "graph build",
+    "deploy": "graph deploy --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/",
+    "create-local": "graph create --node http://localhost:8020/",
+    "remove-local": "graph remove --node http://localhost:8020/",
+    "deploy-local": "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001/"
+  },
+  "dependencies": {
+    "@graphprotocol/graph-cli": "^0.62.0",
+    "@graphprotocol/graph-ts": "^0.31.0"
+  }
+}

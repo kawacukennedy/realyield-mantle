@@ -1,0 +1,79 @@
+type Vault @entity {
+  id: ID!
+  name: String!
+  strategy: String!
+  riskScore: Int!
+  custodian: String!
+  totalValueLocked: BigInt!
+  totalDepositors: BigInt!
+  yieldDistributed: BigInt!
+  apy: BigInt!
+  createdAt: BigInt!
+  updatedAt: BigInt!
+}
+
+type Deposit @entity {
+  id: ID!
+  vault: Vault!
+  depositor: Bytes!
+  assets: BigInt!
+  shares: BigInt!
+  timestamp: BigInt!
+  txHash: Bytes!
+}
+
+type Withdrawal @entity {
+  id: ID!
+  vault: Vault!
+  user: Bytes!
+  shares: BigInt!
+  assets: BigInt!
+  proof: Bytes
+  status: String!
+  requestedAt: BigInt!
+  fulfilledAt: BigInt
+  txHash: Bytes
+}
+
+type YieldDistribution @entity {
+  id: ID!
+  vault: Vault!
+  totalYield: BigInt!
+  perShareAmount: BigInt!
+  timestamp: BigInt!
+  txHash: Bytes!
+}
+
+type Asset @entity {
+  id: ID!
+  tokenId: BigInt!
+  issuer: Bytes!
+  metadataURI: String!
+  attestationHash: Bytes!
+  valuation: BigInt!
+  maturity: BigInt!
+  assetType: String!
+  vault: Vault
+  createdAt: BigInt!
+  locked: Boolean!
+}
+
+type KYCAttestation @entity {
+  id: ID!
+  user: Bytes!
+  attestationHash: Bytes!
+  expiry: BigInt!
+  jurisdiction: String!
+  revoked: Boolean!
+  createdAt: BigInt!
+}
+
+type ZKProof @entity {
+  id: ID!
+  user: Bytes!
+  proofType: String!
+  proofHash: Bytes!
+  verified: Boolean!
+  createdAt: BigInt!
+  txHash: Bytes
+}
