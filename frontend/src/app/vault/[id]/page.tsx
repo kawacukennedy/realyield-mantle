@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { TrendingUp, Shield, Users, DollarSign, Calendar, Building, Upload, Download, Eye } from 'lucide-react';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/Card';
 import Button from '../../components/Button';
 import Input from '../../components/Input';
@@ -41,6 +42,8 @@ export default function VaultDetailsPage() {
   const [depositAmount, setDepositAmount] = useState('');
   const [withdrawAmount, setWithdrawAmount] = useState('');
   const [vaultData, setVaultData] = useState(mockVaultData);
+  const [depositState, setDepositState] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
+  const [withdrawState, setWithdrawState] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
 
   // Mock API call
   useEffect(() => {
@@ -48,6 +51,42 @@ export default function VaultDetailsPage() {
     //   .then(res => res.json())
     //   .then(data => setVaultData(data));
   }, [vaultId]);
+
+  const handleDeposit = async () => {
+    if (!depositAmount) return;
+    setDepositState('loading');
+    try {
+      // Simulate deposit transaction
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      setDepositState('success');
+      setTimeout(() => {
+        setDepositState('idle');
+        setShowDepositModal(false);
+        setDepositAmount('');
+      }, 3000);
+    } catch (error) {
+      setDepositState('error');
+      setTimeout(() => setDepositState('idle'), 3000);
+    }
+  };
+
+  const handleWithdraw = async () => {
+    if (!withdrawAmount) return;
+    setWithdrawState('loading');
+    try {
+      // Simulate withdraw transaction
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      setWithdrawState('success');
+      setTimeout(() => {
+        setWithdrawState('idle');
+        setShowWithdrawModal(false);
+        setWithdrawAmount('');
+      }, 3000);
+    } catch (error) {
+      setWithdrawState('error');
+      setTimeout(() => setWithdrawState('idle'), 3000);
+    }
+  };
 
   const tabs = [
     { id: 'overview', label: 'Overview' },
@@ -174,17 +213,45 @@ export default function VaultDetailsPage() {
         >
           {activeTab === 'overview' && (
             <div className="space-y-6">
-              {/* Performance Chart Placeholder */}
+              {/* Performance Chart */}
               <Card>
                 <CardHeader>
                   <CardTitle>Performance Chart</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="h-64 bg-bg-muted rounded-lg flex items-center justify-center">
-                    <div className="text-center text-text-muted">
-                      <TrendingUp size={48} className="mx-auto mb-4 opacity-50" />
-                      <p>Performance chart would be implemented with Recharts</p>
-                    </div>
+                  <div className="h-64">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <LineChart data={vaultData.performance}>
+                        <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
+                        <XAxis
+                          dataKey="date"
+                          stroke="#9CA3AF"
+                          fontSize={12}
+                        />
+                        <YAxis
+                          stroke="#9CA3AF"
+                          fontSize={12}
+                          tickFormatter={(value) => `$${(value / 1000000).toFixed(1)}M`}
+                        />
+                        <Tooltip
+                          contentStyle={{
+                            backgroundColor: '#1E293B',
+                            border: '1px solid #374151',
+                            borderRadius: '8px'
+                          }}
+                          labelStyle={{ color: '#E5E7EB' }}
+                          formatter={(value: number) => [`$${value.toLocaleString()}`, 'TVL']}
+                        />
+                        <Line
+                          type="monotone"
+                          dataKey="value"
+                          stroke="#4F46E5"
+                          strokeWidth={2}
+                          dot={{ fill: '#4F46E5', strokeWidth: 2, r: 4 }}
+                          activeDot={{ r: 6, stroke: '#4F46E5', strokeWidth: 2 }}
+                        />
+                      </LineChart>
+                    </ResponsiveContainer>
                   </div>
                 </CardContent>
               </Card>
@@ -230,9 +297,15 @@ export default function VaultDetailsPage() {
                   <Input type="file" accept=".json,.pdf" />
                   <p className="text-sm text-text-muted mt-1">Upload your KYC attestation proof</p>
                 </div>
-                <Button className="w-full bg-gradient-to-r from-primary to-accent">
-                  Confirm Deposit
-                </Button>
+                 <Button
+                   className="w-full bg-gradient-to-r from-primary to-accent"
+                   onClick={handleDeposit}
+                   disabled={depositState === 'loading' || depositState === 'success'}
+                 >
+                   {depositState === 'loading' ? 'Processing...' :
+                    depositState === 'success' ? 'Deposit Successful!' :
+                    'Confirm Deposit'}
+                 </Button>
               </CardContent>
             </Card>
           )}
@@ -259,12 +332,19 @@ export default function VaultDetailsPage() {
                     <option>Use Existing Proof</option>
                   </select>
                 </div>
-                <Button className="w-full bg-gradient-to-r from-secondary to-primary">
-                  Preview Transaction
-                </Button>
-                <Button variant="outline" className="w-full">
-                  Withdraw Now
-                </Button>
+                 <Button className="w-full bg-gradient-to-r from-secondary to-primary">
+                   Preview Transaction
+                 </Button>
+                 <Button
+                   variant="outline"
+                   className="w-full"
+                   onClick={handleWithdraw}
+                   disabled={withdrawState === 'loading' || withdrawState === 'success'}
+                 >
+                   {withdrawState === 'loading' ? 'Processing...' :
+                    withdrawState === 'success' ? 'Withdrawal Successful!' :
+                    'Withdraw Now'}
+                 </Button>
               </CardContent>
             </Card>
           )}

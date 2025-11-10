@@ -1,0 +1,242 @@
+{
+  "project": {
+    "name": "RealYield",
+    "tagline": "Compliant, Privacy-Preserving Yield Vaults for Real-World Assets on Mantle",
+    "category": ["RWA / RealFi", "ZK & Privacy", "DeFi & Composability"],
+    "goal": "Create a secure, composable platform on Mantle Network where verified users can tokenize real-world assets, deposit into yield-bearing vaults, and withdraw earnings using ZK proofs — combining compliance with user privacy.",
+    "problem_statement": "Access to compliant DeFi investment products remains fragmented, with high gas costs and opaque custody. Investors and asset issuers lack a scalable on-chain infrastructure for verified, yield-bearing real-world assets (RWA).",
+    "solution_overview": "RealYield leverages Mantle's modular architecture to tokenize verified RWA (invoices, real estate, bonds) as NFTs, pool them into ERC-4626 vaults, and distribute yield with ZK-protected, KYC-attested withdrawals.",
+    "unique_value": "The first Mantle-native RealFi vault combining ERC-1155 asset tokenization, ERC-4626 vault composability, ZK selective disclosure, and automated compliance enforcement."
+  },
+  "system_architecture": {
+    "layers": [
+      {
+        "name": "Frontend (User Interface)",
+        "framework": "Next.js 15 with TypeScript and Tailwind CSS",
+        "deployment": "Vercel + Mantle RPC Integration",
+        "ui_library": "shadcn/ui + Lucide Icons + Framer Motion",
+        "design_theme": {
+          "primary_color": "#4F46E5",
+          "secondary_color": "#22D3EE",
+          "background": "#0F172A",
+          "card_background": "#1E293B",
+          "accent": "#38BDF8",
+          "typography": "Inter / Space Grotesk",
+          "mode": "Auto light/dark based on system preference"
+        },
+        "pages": [
+          {
+            "route": "/",
+            "title": "Home / Dashboard",
+            "sections": [
+              "Hero section — tagline, CTA 'Launch App'",
+              "Live Vault Stats: TVL, APY, Depositors, Yield Distributed",
+              "How It Works: 3-step animated infographic",
+              "Trusted by (logos or placeholders)",
+              "CTA to connect wallet"
+            ]
+          },
+          {
+            "route": "/app",
+            "title": "Vault Dashboard",
+            "layout": "Grid layout (3 cards per row, responsive)",
+            "components": [
+              {
+                "name": "Vault Card",
+                "content": ["Vault Name", "Type (Invoice/Real Estate/Bond)", "Current APY", "TVL", "Deposit CTA"],
+                "animations": "hover:scale-105, transition duration-300 ease-out"
+              },
+              {
+                "name": "Balance Overview",
+                "content": ["Your Deposits", "Current Yield", "Pending Withdrawals"],
+                "interactions": "auto-refresh every 10s"
+              }
+            ]
+          },
+          {
+            "route": "/vault/:id",
+            "title": "Vault Details",
+            "components": [
+              "Vault metadata: name, APY, strategy type, risk score, custodian",
+              "Performance chart (Recharts integration)",
+              "Tabs: Overview | Deposits | Withdrawals | Proofs",
+              {
+                "tab": "Deposits",
+                "ui": [
+                  "Deposit Amount input (number field)",
+                  "Token selector (ETH, USDC)",
+                  "KYC proof upload field (auto-generated if verified)",
+                  "Confirm transaction modal (shows gas fee, estimated yield)"
+                ],
+                "states": [
+                  "idle",
+                  "pending (loading spinner)",
+                  "success (checkmark + confetti animation)",
+                  "error (red toast)"
+                ]
+              },
+              {
+                "tab": "Withdrawals",
+                "ui": [
+                  "Withdrawal Amount slider",
+                  "ZK Proof Selector: choose proof or generate new",
+                  "Preview transaction button",
+                  "Withdraw now button"
+                ],
+                "UX_flow": "1. User clicks withdraw → 2. System checks KYC attestation → 3. ZK proof auto-generated → 4. Contract verifies proof → 5. User signs → 6. Success toast"
+              }
+            ]
+          },
+          {
+            "route": "/kyc",
+            "title": "KYC Verification Flow",
+            "steps": [
+              "Step 1: Upload ID document (encrypted off-chain)",
+              "Step 2: Liveness check (simulated with placeholder)",
+              "Step 3: Attestation signing — backend signs JWT bound to wallet public key",
+              "Step 4: Confirmation screen with hash of attestation stored on Mantle"
+            ],
+            "UX_flow": "Once verified, wallet is flagged as KYC-verified; this proof can be reused to deposit or withdraw."
+          },
+          {
+            "route": "/proofs",
+            "title": "ZK Proof Manager",
+            "components": [
+              "Generate Proof Button",
+              "List of previous proofs (status: verified / pending)",
+              "View proof details (limited disclosure fields)"
+            ],
+            "animations": "fade-in on list update, confetti burst on new proof"
+          }
+        ]
+      },
+      {
+        "name": "Smart Contracts",
+        "language": "Solidity (>=0.8.20)",
+        "framework": "Hardhat + OpenZeppelin",
+        "contracts": [
+          {
+            "name": "AssetTokenizer.sol",
+            "type": "ERC-1155",
+            "purpose": "Tokenize verified RWAs with metadata URI and compliance linkage",
+            "functions": [
+              "mintAsset(address owner, string metadataURI, bytes attestationHash)",
+              "batchMintAsset(address[] owners, string[] metadataURIs)",
+              "setCompliance(address complianceModule)"
+            ]
+          },
+          {
+            "name": "Vault.sol",
+            "type": "ERC-4626",
+            "purpose": "Aggregate yield-bearing RWAs and distribute earnings",
+            "functions": [
+              "deposit(uint256 amount)",
+              "withdraw(uint256 shares)",
+              "calculateYield() view",
+              "distributeYield()"
+            ]
+          },
+          {
+            "name": "ComplianceModule.sol",
+            "purpose": "Manage KYC-attested wallets and jurisdictional access control",
+            "functions": [
+              "addAttestation(address user, bytes attestationHash)",
+              "isCompliant(address user) view returns (bool)",
+              "revoke(address user)"
+            ]
+          },
+          {
+            "name": "YieldDistributor.sol",
+            "purpose": "Automated yield distribution across vault participants",
+            "schedule": "Every 24 hours",
+            "functions": ["distribute()", "claimYield()"]
+          },
+          {
+            "name": "ZKVerifier.sol",
+            "purpose": "On-chain verifier for selective disclosure proofs",
+            "integration": "Circom + SnarkJS verifier contracts",
+            "functions": ["verifyProof(bytes calldata proof) returns (bool)"]
+          }
+        ]
+      },
+      {
+        "name": "Backend / API Layer",
+        "framework": "Node.js (Express or Next.js API Routes)",
+        "services": [
+          "KYC Provider (Simulated or API-based, returns signed JWT)",
+          "Custody Simulator (confirms off-chain settlements)",
+          "ZK Proof Generator (runs Circom circuit for withdrawal proofs)",
+          "Price Oracle Feeds via Chainlink or Mantle-compatible API",
+          "MongoDB for storing encrypted off-chain metadata"
+        ],
+        "security": {
+          "KYC data_encryption": "AES-256 before storage",
+          "API rate limiting": "5 req/sec per IP",
+          "signature_verification": "JWT + ECDSA bound to wallet public key"
+        }
+      },
+      {
+        "name": "Data Availability & Indexing",
+        "components": [
+          "Mantle DA for metadata and yield distribution proofs",
+          "The Graph subgraph for analytics (deposits, vault yields, KYC status)"
+        ]
+      }
+    ]
+  },
+  "user_experience_flows": {
+    "onboarding_flow": [
+      "1. User lands on dashboard → clicks 'Launch App'",
+      "2. Connect wallet modal (MetaMask / WalletConnect)",
+      "3. If KYC not verified → redirect to /kyc",
+      "4. After verification → auto-mint KYC attestation hash on-chain",
+      "5. Redirect to dashboard showing available vaults"
+    ],
+    "deposit_flow": [
+      "User selects a vault → enters amount → frontend checks KYC hash → transaction preview modal → confirm → deposit success animation → balance updates live."
+    ],
+    "withdrawal_flow": [
+      "User clicks Withdraw → ZK Proof Generator modal appears → user signs challenge → backend produces proof → smart contract verifies → funds released → confirmation toast."
+    ],
+    "kyc_flow": [
+      "Document upload → backend encrypts + signs → attestation minted on-chain → user notified success."
+    ],
+    "proof_generation_flow": [
+      "User initiates proof generation → backend runs Circom circuit → proof hash stored on Mantle → user sees proof as verified."
+    ]
+  },
+  "ui_states": {
+    "global_states": ["idle", "loading", "success", "error"],
+    "animations": "Framer Motion transitions for modals and card hovers, shimmer loading placeholders, confetti bursts on success",
+    "notifications": {
+      "type": ["toast", "banner", "modal"],
+      "positions": ["bottom-right", "top-center"],
+      "messages": ["Transaction submitted", "Proof verified", "Deposit successful"]
+    }
+  },
+  "testing_pipeline": {
+    "smart_contracts": "Hardhat + Chai unit tests for each function",
+    "frontend": "Cypress E2E for deposit, withdraw, proof verification flows",
+    "backend": "Jest API integration tests",
+    "deployment": "GitHub Actions → deploy to Mantle testnet via Alchemy RPC"
+  },
+  "mantle_integration": {
+    "rpc": "Mantle Testnet RPC URL",
+    "chain_id": "5001",
+    "explorer": "https://explorer.testnet.mantle.xyz",
+    "gas_estimation": "auto using ethers.js estimateGas",
+    "data_availability": "Mantle DA SDK for metadata and proofs"
+  },
+  "submission_requirements": {
+    "github_repo": "https://github.com/RealYieldApp/mantle-realyield",
+    "demo_video": "3–5 minute walk-through: asset mint → deposit → yield → withdrawal with ZK proof",
+    "readme": "Instructions to clone, run, and deploy on Mantle",
+    "pitch_onepager": "Problem, Solution, Market, Business Model, Roadmap",
+    "team": [
+      {"role": "Founder / Dev", "tasks": "Architecture, Contracts, Frontend"},
+      {"role": "Backend Engineer", "tasks": "API, Custody, ZK proofs"},
+      {"role": "Designer", "tasks": "UI/UX, motion design"}
+    ],
+    "compliance_note": "Demo simulation; non-custodial and non-financial, for hackathon only."
+  }
+}
