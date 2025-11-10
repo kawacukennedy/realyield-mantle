@@ -10,20 +10,43 @@ RealYield enables the tokenization of real-world cash-flow assets (invoices, ren
 
 ## 🏗️ Architecture
 
-### Frontend (`/frontend`)
+### System Overview
+
+```
+┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
+│   Frontend      │    │   Backend       │    │ Smart Contracts │
+│   (Next.js)     │◄──►│   (Node.js)     │◄──►│   (Solidity)    │
+│                 │    │                 │    │                 │
+│ • User Interface│    │ • API Services  │    │ • Vault Logic   │
+│ • Wallet Connect│    │ • KYC Provider  │    │ • Compliance    │
+│ • Dashboard     │    │ • ZK Prover     │    │ • ZK Verifier   │
+│ • Proof Manager │    │ • Custody Bridge│    │ • Yield Dist.   │
+└─────────────────┘    └─────────────────┘    └─────────────────┘
+         │                       │                       │
+         └───────────────────────┼───────────────────────┘
+                                 │
+                    ┌─────────────────┐
+                    │   Mantle DA     │
+                    │   (Data Avail.) │
+                    └─────────────────┘
+```
+
+### Components
+
+#### Frontend (`/frontend`)
 - **Framework**: Next.js 16 with TypeScript
 - **Styling**: Tailwind CSS with custom Mantle theme
 - **Web3**: Wagmi + Viem for Mantle network integration
 - **UI**: Custom component library with animations
 - **PWA**: Service worker, offline support, push notifications
 
-### Smart Contracts (`/contracts`)
+#### Smart Contracts (`/contracts`)
 - **Language**: Solidity ^0.8.19
 - **Framework**: Hardhat
 - **Libraries**: OpenZeppelin (AccessControl, ERC20, ERC4626)
 - **Features**: Vault contracts, compliance modules, ZK verification
 
-### Backend (`/backend`)
+#### Backend (`/backend`)
 - **Runtime**: Node.js with Express
 - **Services**: KYC verification, custody management, oracle feeds, ZK proving
 - **Database**: PostgreSQL for user data and compliance records
@@ -173,6 +196,57 @@ MANTLE_TESTNET_RPC=https://rpc.testnet.mantle.xyz
 MANTLE_RPC=https://rpc.mantle.xyz
 ```
 
+## 📡 API Reference
+
+### Backend Endpoints
+
+#### Vaults
+- `GET /v1/vaults` - List available vaults with filtering
+- `GET /v1/vaults/:id` - Get vault details and statistics
+
+#### Assets
+- `POST /v1/assets` - Create new asset tokenization request
+- `GET /v1/assets/:id` - Get asset details
+
+#### KYC & Compliance
+- `POST /v1/kyc/submit` - Submit KYC verification request
+- `GET /v1/kyc/status/:wallet` - Check KYC verification status
+
+#### ZK Proofs
+- `POST /v1/zk/generate` - Generate ZK proof
+- `POST /v1/zk/verify` - Verify ZK proof
+
+#### Custody & Settlement
+- `POST /v1/settlement/confirm` - Confirm custody settlement
+- `GET /v1/custody/status/:assetId` - Check custody status
+
+#### Oracle & Feeds
+- `GET /oracle/prices` - Get current price feeds
+- `POST /oracle/push` - Push oracle updates (admin only)
+
+### Contract Interfaces
+
+#### AssetTokenizer
+```solidity
+function mintAsset(address owner, string metadataURI, bytes attestationHash) returns (uint256)
+function batchMintAsset(address[] owners, string[] metadataURIs) onlyOwner
+```
+
+#### Vault
+```solidity
+function deposit(uint256 assets, address receiver) returns (uint256)
+function withdraw(uint256 assets, address receiver, address owner) returns (uint256)
+function requestWithdrawal(uint256 shares) external
+function settleWithdrawal(bytes proof, uint256 shares) external
+```
+
+#### ComplianceModule
+```solidity
+function addAttestation(address user, bytes attestationHash) external
+function isCompliant(address user) view returns (bool)
+function revoke(address user) onlyOwner
+```
+
 ## 🧪 Testing
 
 ```bash
@@ -201,6 +275,56 @@ cd backend && npm test
 - **ZK Compliance**: Privacy-preserving verification without revealing PII
 - **Input Validation**: Comprehensive client and server-side checks
 
+## 🛠️ Development
+
+### Local Development Setup
+
+1. **Environment Variables**:
+   ```bash
+   # Frontend (.env.local)
+   NEXT_PUBLIC_MANTLE_RPC=https://rpc.testnet.mantle.xyz
+   NEXT_PUBLIC_BACKEND_URL=http://localhost:3001
+
+   # Backend (.env)
+   PORT=3001
+   DATABASE_URL=postgresql://...
+   MANTLE_RPC_URL=https://rpc.testnet.mantle.xyz
+
+   # Contracts (.env)
+   PRIVATE_KEY=your_private_key_without_0x_prefix
+   MANTLE_TESTNET_RPC=https://rpc.testnet.mantle.xyz
+   ```
+
+2. **Database Setup** (for backend):
+   ```sql
+   CREATE DATABASE realyield;
+   -- Run migrations from backend/migrations/
+   ```
+
+3. **ZK Circuit Setup** (optional):
+   ```bash
+   cd contracts
+   # Install circom and snarkjs
+   npm install -g circom snarkjs
+   # Generate proving/verification keys
+   ```
+
+### Code Quality
+
+- **Linting**: `npm run lint` (frontend)
+- **Type Checking**: `npm run type-check` (frontend)
+- **Testing**: `npm test` (all components)
+- **Contract Verification**: Use Hardhat verify plugin
+
+### Deployment Checklist
+
+- [ ] Run full test suite
+- [ ] Update contract addresses in frontend config
+- [ ] Verify contracts on Mantle explorer
+- [ ] Test KYC flow end-to-end
+- [ ] Validate ZK proof generation
+- [ ] Check gas optimizations
+
 ## 🤝 Contributing
 
 1. Fork the repository
@@ -208,6 +332,19 @@ cd backend && npm test
 3. Commit changes (`git commit -m 'Add amazing feature'`)
 4. Push to branch (`git push origin feature/amazing-feature`)
 5. Open a Pull Request
+
+### Contribution Guidelines
+
+- Follow existing code style and conventions
+- Add tests for new features
+- Update documentation for API changes
+- Ensure contracts are audited before mainnet deployment
+
+## 📚 Documentation
+
+- **[API Reference](docs/API.md)** - Complete API documentation
+- **[Requirements](docs/requirements.md)** - Detailed system specifications
+- **[Contributing](CONTRIBUTING.md)** - Development guidelines
 
 ## 📄 License
 

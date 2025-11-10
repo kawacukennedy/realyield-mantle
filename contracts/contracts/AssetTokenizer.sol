@@ -5,6 +5,12 @@ import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
 
+/**
+ * @title AssetTokenizer
+ * @dev ERC-1155 contract for tokenizing real-world assets (RWAs) with compliance linkage.
+ * Supports minting of verified assets with metadata URIs and KYC attestations.
+ * Used by the RealYield platform to represent tokenized RWAs in yield vaults.
+ */
 contract AssetTokenizer is ERC1155, Ownable {
     uint256 private _nextAssetId = 1;
 
@@ -31,6 +37,13 @@ contract AssetTokenizer is ERC1155, Ownable {
         emit ComplianceModuleSet(complianceModule, true);
     }
 
+    /**
+     * @dev Mints a new asset token with compliance attestation
+     * @param owner Address that will own the minted asset
+     * @param metadataURI IPFS URI containing asset metadata (valuation, maturity, etc.)
+     * @param attestationHash Hash of KYC attestation for compliance
+     * @return assetId The ID of the newly minted asset
+     */
     function mintAsset(
         address owner,
         string memory metadataURI,

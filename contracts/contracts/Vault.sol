@@ -8,6 +8,12 @@ import "./ComplianceModule.sol";
 import "./ZKModule.sol";
 import "./YieldDistributor.sol";
 
+/**
+ * @title Vault
+ * @dev ERC-4626 compliant vault for aggregating yield-bearing RWAs.
+ * Manages deposits, withdrawals, and yield distribution with ZK privacy protection.
+ * Integrates with compliance modules for KYC verification and ZK proofs for privacy.
+ */
 contract Vault is ERC4626, Ownable {
     AssetTokenizer public assetTokenizer;
     ComplianceModule public compliance;
@@ -51,6 +57,12 @@ contract Vault is ERC4626, Ownable {
         custodian = _custodian;
     }
 
+    /**
+     * @dev Deposits assets into the vault after compliance check
+     * @param assets Amount of underlying assets to deposit
+     * @param receiver Address that will receive the vault shares
+     * @return shares Amount of vault shares minted
+     */
     function deposit(uint256 assets, address receiver) public override returns (uint256) {
         require(compliance.isCompliant(receiver), "Not compliant");
         uint256 shares = super.deposit(assets, receiver);
